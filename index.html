@@ -906,8 +906,13 @@
             chatContainer.appendChild(typingEl);
 
             setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 50);
+ setTimeout(() => {
+    const sc = document.querySelector('.main-content');
+    sc.scrollTo({
+        top: sc.scrollHeight,
+        behavior: "smooth"
+    });
+}, 50);
 
             try {
                 let requestBody = {};
