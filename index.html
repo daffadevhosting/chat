@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini</title>
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #131314;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal scroll when offcanvas is open */
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #131314;
+            z-index: 100;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .menu-icon span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: white;
+            margin: 4px 0;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 60px;
+            padding-bottom: 140px;
+            overflow-y: auto; /* Enable scrolling for chat content */
+        }
+
+        /* Welcome State */
+        .welcome-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .welcome-state.hidden {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+        }
+
+        .gemini-star {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Chat State */
+        .chat-container {
+            flex: 1;
+            padding: 1rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .chat-container.active {
+            display: flex;
+            max-width: 800px;
+            width: 100%;
+            margin: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* User Message */
+        .user-message {
+            align-self: flex-end;
+            background: #3c4043;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            max-width: 80%;
+            animation: slideInRight 0.4s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* AI Response */
+        .ai-response {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            animation: fadeInUp 0.5s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-star {
+            width: 24px;
+            height: 24px;
+        }
+
+        .sound-icon {
+            background: #131314;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0.5rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .sound-icon:hover {
+            opacity: 1;
+        }
+
+        .ai-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            white-space: pre-wrap; /* Ensure pre-formatted text wraps */
+        }
+
+        /* Action Buttons for AI response */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            opacity: 0.6;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .more-btn {
+            margin-left: auto;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 1rem;
+        }
+
+        /* Input Area */
+        .input-area {
+            max-width: 500px;
+            margin: auto;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #131314;
+            padding: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-area.chat-mode-active { /* Changed class name to avoid conflict with chat-mode from previous snippet */
+            background: #1e1f20;
+            border-top-right-radius: 1.5rem;
+            border-top-left-radius: 1.5rem;
+        }
+
+        .input-wrapper {
+            background: #1e1f20;
+            border-radius: 1.5rem;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-area.chat-mode-active .input-wrapper {
+            background: transparent;
+            padding: 0.5rem 0;
+        }
+
+        .input-field {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+            height: 40px;
+            line-height: 1.5;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-area.chat-mode-active .input-actions {
+            margin-top: 0.5rem;
+        }
+
+        .left-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-icon {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+
+        .action-icon:hover {
+            opacity: 1;
+        }
+
+        .right-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .cepat-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .cepat-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .mic-btn, .wave-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .mic-btn:hover, .wave-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .send-btn {
+            background: #4285f4;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            transform: scale(1);
+        }
+
+        .send-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .send-btn:hover {
+            background: #5a95f5;
+        }
+
+        /* Typing Animation */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 0.5rem 0;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #4285f4;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+
+        /* SVG Icons */
+        svg {
+            fill: white;
+        }
+
+        /* --- Custom Styles for Action Sheets and Offcanvas --- */
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Action Sheet Base */
+        .action-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-height: 80%;
+            background: #1e1f20;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            z-index: 300;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+        }
+
+        .action-sheet.active {
+            transform: translateY(0);
+        }
+
+        .action-sheet-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .action-sheet button {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-sheet button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-sheet button.selected {
+            background: #4285f4;
+            font-weight: bold;
+        }
+
+        /* Offcanvas for Chat History */
+        .offcanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 70%; /* Adjust as needed */
+            max-width: 300px;
+            height: 100%;
+            background: #1e1f20;
+            z-index: 300;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .offcanvas.active {
+            transform: translateX(0);
+        }
+
+        .offcanvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .offcanvas-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .offcanvas-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .offcanvas-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .offcanvas-content button {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .offcanvas-content button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .new-chat-btn {
+            background: #4285f4;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        .new-chat-btn:hover {
+            background: #5a95f5;
+        }
+
+        .endpoint-url {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="menu-icon" id="chatHistoryBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo" id="setting-status">Chat Mode</div>
+        <div class="avatar">A</div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome State -->
+        <div class="welcome-state" id="welcomeState">
+            <svg class="gemini-star" viewBox="0 0 24 24">
+                <defs>
+                    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4285f4"/>
+                        <stop offset="100%" style="stop-color:#34a853"/>
+                    </linearGradient>
+                </defs>
+                <path fill="url(#starGradient)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+            </svg>
+            <p class="welcome-text">Ada yang bisa saya bantu?</p>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container" id="chatContainer"></div>
+    </main>
+
+    <!-- Input Area -->
+    <div class="input-area" id="inputArea">
+        <div class="input-wrapper">
+            <div class="input-field">
+                <input type="text" placeholder="Silahkan Minta Apapun" id="messageInput">
+            </div>
+            <div class="input-actions">
+                <div class="left-actions">
+                    <button class="action-icon" id="settingsBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="right-actions">
+                    <button class="cepat-btn" id="modelAiBtn">Deepseek</button>
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Model AI Action Sheet -->
+    <div class="action-sheet" id="modelAiActionSheet">
+        <div class="action-sheet-title">Pilih Model AI</div>
+        <button data-model="@cf/meta/llama-3.1-8b-instruct-fp8">
+            <span>llama-3</span>
+            <span class="selected-indicator"></span>
+        </button>
+        <button data-model="@cf/qwen/qwen2.5-coder-32b-instruct">
+            <span>qwen</span>
+            <span class="selected-indicator"></span>
+        </button>
+        <button data-model="@cf/deepseek-ai/deepseek-r1-distill-qwen-32b">
+            <span>deepseek</span>
+            <span class="selected-indicator"></span>
+        </button>
+    </div>
+
+    <!-- Settings (Chat Mode) Action Sheet -->
+    <div class="action-sheet" id="settingsActionSheet">
+        <div class="action-sheet-title">Pilih Mode Chat</div>
+        <button data-mode="chat">
+            <span>Chat</span>
+            <span class="selected-indicator"></span>
+        </button>
+        <button data-mode="analyze-repo">
+            <span>Analyze Repo</span>
+            <span class="selected-indicator"></span>
+        </button>
+        <button data-mode="generate-code">
+            <span>Generate Code</span>
+            <span class="selected-indicator"></span>
+        </button>
+        <button data-mode="fix-error">
+            <span>Fix Error</span>
+            <span class="selected-indicator"></span>
+        </button>
+    </div>
+
+    <!-- Chat History Offcanvas -->
+    <div class="offcanvas" id="chatHistoryOffcanvas">
+        <div class="offcanvas-header">
+            <h3 class="offcanvas-title">Riwayat Chat</h3>
+            <button class="offcanvas-close-btn" id="closeOffcanvasBtn">&times;</button>
+        </div>
+        <div class="offcanvas-content" id="offcanvasChatHistoryContent">
+            <!-- Chat history items will be dynamically added here -->
+            <p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>
+        </div>
+        <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+    </div>
+
+    <!-- Load required libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.0/dist/purify.min.js"></script>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const welcomeState = document.getElementById('welcomeState');
+        const chatContainer = document.getElementById('chatContainer');
+        const inputArea = document.getElementById('inputArea');
+        const settingStatus = document.getElementById('setting-status');
+
+        const overlay = document.getElementById('overlay');
+        const modelAiBtn = document.getElementById('modelAiBtn');
+        const modelAiActionSheet = document.getElementById('modelAiActionSheet');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsActionSheet = document.getElementById('settingsActionSheet');
+        const chatHistoryBtn = document.getElementById('chatHistoryBtn');
+        const chatHistoryOffcanvas = document.getElementById('chatHistoryOffcanvas');
+        const closeOffcanvasBtn = document.getElementById('closeOffcanvasBtn');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const offcanvasChatHistoryContent = document.getElementById('offcanvasChatHistoryContent');
+
+        const BACKEND_URL = 'https://backend-ai.daffadev.workers.dev';
+
+        let isFirstMessage = true;
+        let currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8'; // Default model
+        let currentMode = 'chat'; // Default mode
+        let chatContext = []; // Store chat history for 'chat' mode
+
+        // Initialize UI with default selections
+        updateModelBasedOnMode(); // Set the appropriate model based on the initial mode
+        updateSettingStatus();
+        highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
+        highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
+
+        function updateModelButtonText() {
+            // Map full model names to shorter, user-friendly names
+            let shortName = currentModel;
+
+            if (currentModel.includes('llama-3.1-8b')) {
+                shortName = 'Llama 3';
+            } else if (currentModel.includes('qwen2.5-coder-32b')) {
+                shortName = 'Qwen';
+            } else if (currentModel.includes('deepseek-r1-distill-qwen-32b')) {
+                shortName = 'Deepseek';
+            } else {
+                // Fallback to last part of model string if no match
+                shortName = currentModel.split('/').pop();
+            }
+
+            modelAiBtn.textContent = shortName;
+        }
+
+        function updateSettingStatus() {
+            settingStatus.textContent = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + '';
+        }
+
+        function updateModelBasedOnMode() {
+            // Set default models based on current mode
+            switch(currentMode) {
+                case 'chat':
+                    currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8';
+                    break;
+                case 'analyze-repo':
+                case 'fix-error':
+                    currentModel = '@cf/qwen/qwen2.5-coder-32b-instruct';
+                    break;
+                case 'generate-code':
+                    currentModel = '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b';
+                    break;
+                default:
+                    currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8'; // fallback to chat model
+            }
+            updateModelButtonText();
+            highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
+        }
+
+        function highlightSelectedOption(container, type, value) {
+            container.querySelectorAll(`button[data-${type}]`).forEach(button => {
+                if (button.dataset[type] === value) {
+                    button.classList.add('selected');
+                    button.innerHTML = `<span>${button.textContent.replace('✓', '').trim()}</span><span class="selected-indicator">✓</span>`;
+                } else {
+                    button.classList.remove('selected');
+                    button.innerHTML = `<span>${button.textContent.replace('✓', '').trim()}</span><span class="selected-indicator"></span>`;
+                }
+            });
+        }
+
+        // --- Overlay and Action Sheet / Offcanvas Functions ---
+        function openOverlay() {
+            overlay.classList.add('active');
+        }
+
+        function closeOverlay() {
+            overlay.classList.remove('active');
+            modelAiActionSheet.classList.remove('active');
+            settingsActionSheet.classList.remove('active');
+            chatHistoryOffcanvas.classList.remove('active');
+        }
+
+        overlay.addEventListener('click', closeOverlay);
+
+        // Remove model selection functionality - model is now auto-selected based on mode
+        modelAiBtn.addEventListener('click', () => {
+            // Show which model is currently being used based on the current mode
+            const modelName = currentModel.includes('llama-3.1-8b') ? 'Llama 3' :
+                             currentModel.includes('qwen2.5-coder-32b') ? 'Qwen' :
+                             currentModel.includes('deepseek-r1-distill-qwen-32b') ? 'Deepseek' :
+                             currentModel.split('/').pop();
+            const modeName = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            alert(`Currently using ${modelName} model for ${modeName} mode. Model selection is now automatic based on the mode.`);
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            openOverlay();
+            settingsActionSheet.classList.add('active');
+            highlightSelectedOption(settingsActionSheet, 'mode', currentMode); // Re-highlight on open
+        });
+
+        chatHistoryBtn.addEventListener('click', () => {
+            openOverlay();
+            chatHistoryOffcanvas.classList.add('active');
+        });
+
+        closeOffcanvasBtn.addEventListener('click', closeOverlay);
+        
+        newChatBtn.addEventListener('click', () => {
+            clearChat();
+            closeOverlay();
+        });
+
+        function clearChat() {
+            chatContainer.innerHTML = '';
+            chatContext = [];
+            isFirstMessage = true;
+            welcomeState.classList.remove('hidden');
+            chatContainer.classList.remove('active');
+            inputArea.classList.remove('chat-mode-active');
+            // Reset message input placeholder based on current mode
+            updateMessageInputPlaceholder();
+        }
+
+        modelAiActionSheet.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                currentModel = e.currentTarget.dataset.model;
+                updateModelButtonText();
+                highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
+                closeOverlay();
+            });
+        });
+
+        settingsActionSheet.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                currentMode = e.currentTarget.dataset.mode;
+                updateSettingStatus();
+                updateModelBasedOnMode(); // Update model based on the selected mode
+                highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
+                closeOverlay();
+                // Clear chat and reset placeholder when mode changes
+                clearChat();
+            });
+        });
+
+        function updateMessageInputPlaceholder() {
+            let placeholderText = "Silahkan Minta Apapun";
+            if (currentMode === 'analyze-repo') {
+                placeholderText = "Masukkan URL repo (e.g., https://github.com/owner/repo)";
+            } else if (currentMode === 'generate-code') {
+                placeholderText = "Masukkan persyaratan untuk generate kode";
+            } else if (currentMode === 'fix-error') {
+                placeholderText = "Masukkan kode dan error dalam format:\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
+            }
+            messageInput.placeholder = placeholderText;
+        }
+
+        // Call initially to set correct placeholder
+        updateMessageInputPlaceholder();
+
+        // --- Send Message Functionality ---
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            if (isFirstMessage) {
+                welcomeState.classList.add('hidden');
+                chatContainer.classList.add('active');
+                inputArea.classList.add('chat-mode-active');
+                isFirstMessage = false;
+            }
+
+            const userMsgEl = document.createElement('div');
+            userMsgEl.className = 'user-message';
+            userMsgEl.textContent = message;
+            chatContainer.appendChild(userMsgEl);
+
+            messageInput.value = '';
+
+            const typingEl = document.createElement('div');
+            typingEl.className = 'ai-response';
+            typingEl.innerHTML = `
+                <div class="ai-header">
+                    <svg class="ai-star" viewBox="0 0 24 24">
+                        <defs>
+                            <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#4285f4"/>
+                                <stop offset="100%" style="stop-color:#34a853"/>
+                            </linearGradient>
+                        </defs>
+                        <path fill="url(#starGrad)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+                        </svg>
+                </div>
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatContainer.appendChild(typingEl);
+
+            // Scroll to bottom after typing indicator is added
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 50);
+
+            try {
+                let requestBody = {};
+                let endpoint = '';
+
+                if (currentMode === 'chat') {
+                    endpoint = '/chat';
+                    chatContext.push({ role: 'user', content: message });
+                    requestBody = {
+                        message: message,
+                        context: chatContext,
+                        model: currentModel
+                    };
+                } else if (currentMode === 'analyze-repo') {
+                    endpoint = '/analyze-repo';
+                    requestBody = {
+                        repoUrl: message, // User provides repo URL in message input
+                        model: currentModel
+                    };
+                } else if (currentMode === 'generate-code') {
+                    endpoint = '/generate-code';
+                    requestBody = {
+                        requirements: message, // User provides requirements in message input
+                        language: 'javascript', // Default, can be extended with UI for language selection
+                        model: currentModel
+                    };
+                } else if (currentMode === 'fix-error') {
+                    endpoint = '/fix-error';
+                    // For fix-error, message should contain code and error.
+                    // This is a simplified approach, in a real app,
+                    const codeMatch = message.match(/CODE_START\n([\s\S]*?)\nCODE_END/);
+                    const errorMatch = message.match(/ERROR_START\n([\s\S]*?)\nERROR_END/);
+
+                    if (!codeMatch || !errorMatch) {
+                        throw new Error("Untuk mode 'Fix Error', harap sertakan kode dan error dalam format:\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END");
+                    }
+
+                    requestBody = {
+                        code: codeMatch[1],
+                        error: errorMatch[1],
+                        language: 'javascript', // Default
+                        model: currentModel
+                    };
+                }
+
+                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Terjadi kesalahan pada backend.');
+                }
+
+                let aiResponseText = '';
+                if (currentMode === 'chat') {
+                    aiResponseText = data.response;
+                    chatContext.push({ role: 'assistant', content: aiResponseText });
+                } else if (currentMode === 'analyze-repo') {
+                    aiResponseText = `**Analisis Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
+                } else if (currentMode === 'generate-code') {
+                    // Handle different possible response formats from backend
+                    if (data.code) {
+                        // Backend returns everything in the code field (combined with explanation), try to extract code blocks
+                        const fullCodeResponse = data.code;
+                        const codeBlockMatch = fullCodeResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
+
+                        if (codeBlockMatch) {
+                            // Extract code from markdown code block
+                            const extractedCode = codeBlockMatch[1];
+                            // Get language if specified in the code block
+                            const languageMatch = fullCodeResponse.match(/```([a-zA-Z]+)/);
+                            const language = languageMatch ? languageMatch[1] : (data.language || 'javascript');
+
+                            // Get explanation as the text after the code block
+                            const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
+                            const matchResult = fullCodeResponse.match(codeBlockPattern);
+                            if (matchResult) {
+                                const codeBlockEndIndex = fullCodeResponse.indexOf(matchResult[0]) + matchResult[0].length;
+                                const remainingText = fullCodeResponse.substring(codeBlockEndIndex).trim();
+
+                                aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
+                            } else {
+                                // Fallback if we can't properly extract
+                                aiResponseText = fullCodeResponse;
+                            }
+                        } else {
+                            // If no code block found in the code field, treat the entire content as response
+                            aiResponseText = fullCodeResponse;
+                        }
+                    } else if (data.response) {
+                        // If backend returns everything in response field instead
+                        const fullResponse = data.response;
+                        const codeBlockMatch = fullResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
+
+                        if (codeBlockMatch) {
+                            // Extract code from markdown code block
+                            const extractedCode = codeBlockMatch[1];
+                            // Get language if specified in the code block
+                            const languageMatch = fullResponse.match(/```([a-zA-Z]+)/);
+                            const language = languageMatch ? languageMatch[1] : 'javascript';
+
+                            // Get explanation as the text after the code block
+                            const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
+                            const matchResult = fullResponse.match(codeBlockPattern);
+                            if (matchResult) {
+                                const codeBlockEndIndex = fullResponse.indexOf(matchResult[0]) + matchResult[0].length;
+                                const remainingText = fullResponse.substring(codeBlockEndIndex).trim();
+
+                                aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
+                            } else {
+                                // Fallback if we can't properly extract
+                                aiResponseText = fullResponse;
+                            }
+                        } else {
+                            // If no code block found, show the entire response
+                            aiResponseText = fullResponse;
+                        }
+                    } else {
+                        // If no code or response field, show generic message
+                        aiResponseText = 'Tidak ada kode yang dihasilkan.';
+                    }
+                } else if (currentMode === 'fix-error') {
+                    aiResponseText = `**Kode Asli:**\n\n\
+${data.language}
+${data.original_code}
+\
+\n**Kode Diperbaiki:**\n\n\
+${data.language}
+${data.fixed_code}
+\
+\n**Penjelasan Perbaikan:** ${data.fixed_code_explanation || ''}\n\n**Tips Pencegahan:** ${data.prevention_tips || ''}`;
+                } else {
+                    aiResponseText = JSON.stringify(data, null, 2);
+                }
+
+                const renderedHtml = DOMPurify.sanitize(marked.parse(aiResponseText));
+
+                typingEl.innerHTML = `
+                    <div class="ai-header">
+                        <svg class="ai-star" viewBox="0 0 24 24">
+                            <defs>
+                                <linearGradient id="starGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#4285f4"/>
+                                    <stop offset="100%" style="stop-color:#34a853"/>
+                                </linearGradient>
+                            </defs>
+                            <path fill="url(#starGrad2)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+                        </svg>
+                        <button class="sound-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="ai-text">${renderedHtml}</div>
+                    <div class="action-buttons">
+                        <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
+                        <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></button>
+                        <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
+                        <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        <button class="action-btn more-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+                    </div>
+                    <p class="disclaimer">Gemini dapat membuat kesalahan, jadi periksa kembali responsnya</p>
+                `;
+
+                // Scroll to bottom after content is updated
+                setTimeout(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 50);
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+                typingEl.innerHTML = `
+                    <div class="ai-header">
+                        <svg class="ai-star" viewBox="0 0 24 24">
+                            <defs>
+                                <linearGradient id="starGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#FF0000"/>
+                                    <stop offset="100%" style="stop-color:#B22222"/>
+                                </linearGradient>
+                            </defs>
+                            <path fill="url(#starGrad2)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+                        </svg>
+                    </div>
+                    <div class="ai-text" style="color: red;">${DOMPurify.sanitize(marked.parse(`Error: ${error.message}`))}</div>
+                `;
+
+                // Scroll to bottom after error content is updated
+                setTimeout(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 50);
+            }
+        }
+    </script>
+</body>
+</html>
