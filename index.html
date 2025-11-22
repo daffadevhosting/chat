@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini</title>
+    <title>Gem mini</title>
     <style>
         /* Base styles */
         * {
@@ -575,23 +575,25 @@
             <span></span>
         </div>
         <div class="logo" id="setting-status">Chat Mode</div>
-        <div class="avatar">A</div>
+        <div class="avatar">AI</div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
         <!-- Welcome State -->
         <div class="welcome-state" id="welcomeState">
-            <svg class="gemini-star" viewBox="0 0 24 24">
+            <svg class="gemini-sparkle" viewBox="0 0 24 24" width="60" height="60">
                 <defs>
-                    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:#4285f4"/>
                         <stop offset="100%" style="stop-color:#34a853"/>
                     </linearGradient>
                 </defs>
-                <path fill="url(#starGradient)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+                <path fill="url(#sparkleGradient)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
+                <path fill="url(#sparkleGradient)" d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"/>
+                <path fill="url(#sparkleGradient)" d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"/>
             </svg>
-            <p class="welcome-text">Ada yang bisa saya bantu?</p>
+            <p class="welcome-text">Apa yang bisa saya bantu?</p>
         </div>
 
         <!-- Chat Container -->
@@ -880,15 +882,17 @@
             typingEl.className = 'ai-response';
             typingEl.innerHTML = `
                 <div class="ai-header">
-                    <svg class="ai-star" viewBox="0 0 24 24">
+                    <svg class="gemini-sparkle" viewBox="0 0 24 24" width="24" height="24">
                         <defs>
-                            <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" style="stop-color:#4285f4"/>
                                 <stop offset="100%" style="stop-color:#34a853"/>
                             </linearGradient>
                         </defs>
-                        <path fill="url(#starGrad)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
-                        </svg>
+                        <path fill="url(#sparkleGradient)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
+                        <path fill="url(#sparkleGradient)" d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"/>
+                        <path fill="url(#sparkleGradient)" d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"/>
+                    </svg>
                 </div>
                 <div class="typing-indicator">
                     <span></span>
