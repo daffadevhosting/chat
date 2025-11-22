@@ -715,7 +715,6 @@
         highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
 
         function updateModelButtonText() {
-            // Map full model names to shorter, user-friendly names
             let shortName = currentModel;
 
             if (currentModel.includes('llama-3.1-8b')) {
@@ -725,7 +724,6 @@
             } else if (currentModel.includes('deepseek-r1-distill-qwen-32b')) {
                 shortName = 'Deepseek';
             } else {
-                // Fallback to last part of model string if no match
                 shortName = currentModel.split('/').pop();
             }
 
@@ -737,7 +735,6 @@
         }
 
         function updateModelBasedOnMode() {
-            // Set default models based on current mode
             switch(currentMode) {
                 case 'chat':
                     currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8';
@@ -750,7 +747,7 @@
                     currentModel = '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b';
                     break;
                 default:
-                    currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8'; // fallback to chat model
+                    currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8';
             }
             updateModelButtonText();
             highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
@@ -768,7 +765,6 @@
             });
         }
 
-        // --- Overlay and Action Sheet / Offcanvas Functions ---
         function openOverlay() {
             overlay.classList.add('active');
         }
@@ -782,9 +778,7 @@
 
         overlay.addEventListener('click', closeOverlay);
 
-        // Remove model selection functionality - model is now auto-selected based on mode
         modelAiBtn.addEventListener('click', () => {
-            // Show which model is currently being used based on the current mode
             const modelName = currentModel.includes('llama-3.1-8b') ? 'Llama 3' :
                              currentModel.includes('qwen2.5-coder-32b') ? 'Qwen' :
                              currentModel.includes('deepseek-r1-distill-qwen-32b') ? 'Deepseek' :
@@ -796,7 +790,7 @@
         settingsBtn.addEventListener('click', () => {
             openOverlay();
             settingsActionSheet.classList.add('active');
-            highlightSelectedOption(settingsActionSheet, 'mode', currentMode); // Re-highlight on open
+            highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
         });
 
         chatHistoryBtn.addEventListener('click', () => {
@@ -835,10 +829,9 @@
             button.addEventListener('click', (e) => {
                 currentMode = e.currentTarget.dataset.mode;
                 updateSettingStatus();
-                updateModelBasedOnMode(); // Update model based on the selected mode
+                updateModelBasedOnMode();
                 highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
                 closeOverlay();
-                // Clear chat and reset placeholder when mode changes
                 clearChat();
             });
         });
@@ -855,10 +848,8 @@
             messageInput.placeholder = placeholderText;
         }
 
-        // Call initially to set correct placeholder
         updateMessageInputPlaceholder();
 
-        // --- Send Message Functionality ---
         messageInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && this.value.trim()) {
                 sendMessage();
@@ -907,7 +898,6 @@
             `;
             chatContainer.appendChild(typingEl);
 
-            // Scroll to bottom after typing indicator is added
             setTimeout(() => {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 50);
@@ -927,20 +917,18 @@
                 } else if (currentMode === 'analyze-repo') {
                     endpoint = '/analyze-repo';
                     requestBody = {
-                        repoUrl: message, // User provides repo URL in message input
+                        repoUrl: message,
                         model: currentModel
                     };
                 } else if (currentMode === 'generate-code') {
                     endpoint = '/generate-code';
                     requestBody = {
-                        requirements: message, // User provides requirements in message input
-                        language: 'javascript', // Default, can be extended with UI for language selection
+                        requirements: message,
+                        language: 'javascript',
                         model: currentModel
                     };
                 } else if (currentMode === 'fix-error') {
                     endpoint = '/fix-error';
-                    // For fix-error, message should contain code and error.
-                    // This is a simplified approach, in a real app,
                     const codeMatch = message.match(/CODE_START\n([\s\S]*?)\nCODE_END/);
                     const errorMatch = message.match(/ERROR_START\n([\s\S]*?)\nERROR_END/);
 
@@ -951,7 +939,7 @@
                     requestBody = {
                         code: codeMatch[1],
                         error: errorMatch[1],
-                        language: 'javascript', // Default
+                        language: 'javascript',
                         model: currentModel
                     };
                 }
@@ -977,20 +965,15 @@
                 } else if (currentMode === 'analyze-repo') {
                     aiResponseText = `**Analisis Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
                 } else if (currentMode === 'generate-code') {
-                    // Handle different possible response formats from backend
                     if (data.code) {
-                        // Backend returns everything in the code field (combined with explanation), try to extract code blocks
                         const fullCodeResponse = data.code;
                         const codeBlockMatch = fullCodeResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
 
                         if (codeBlockMatch) {
-                            // Extract code from markdown code block
                             const extractedCode = codeBlockMatch[1];
-                            // Get language if specified in the code block
                             const languageMatch = fullCodeResponse.match(/```([a-zA-Z]+)/);
                             const language = languageMatch ? languageMatch[1] : (data.language || 'javascript');
 
-                            // Get explanation as the text after the code block
                             const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
                             const matchResult = fullCodeResponse.match(codeBlockPattern);
                             if (matchResult) {
@@ -999,26 +982,20 @@
 
                                 aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
                             } else {
-                                // Fallback if we can't properly extract
                                 aiResponseText = fullCodeResponse;
                             }
                         } else {
-                            // If no code block found in the code field, treat the entire content as response
                             aiResponseText = fullCodeResponse;
                         }
                     } else if (data.response) {
-                        // If backend returns everything in response field instead
                         const fullResponse = data.response;
                         const codeBlockMatch = fullResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
 
                         if (codeBlockMatch) {
-                            // Extract code from markdown code block
                             const extractedCode = codeBlockMatch[1];
-                            // Get language if specified in the code block
                             const languageMatch = fullResponse.match(/```([a-zA-Z]+)/);
                             const language = languageMatch ? languageMatch[1] : 'javascript';
 
-                            // Get explanation as the text after the code block
                             const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
                             const matchResult = fullResponse.match(codeBlockPattern);
                             if (matchResult) {
@@ -1027,15 +1004,12 @@
 
                                 aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
                             } else {
-                                // Fallback if we can't properly extract
                                 aiResponseText = fullResponse;
                             }
                         } else {
-                            // If no code block found, show the entire response
                             aiResponseText = fullResponse;
                         }
                     } else {
-                        // If no code or response field, show generic message
                         aiResponseText = 'Tidak ada kode yang dihasilkan.';
                     }
                 } else if (currentMode === 'fix-error') {
@@ -1082,7 +1056,6 @@ ${data.fixed_code}
                     <p class="disclaimer">Gemini dapat membuat kesalahan, jadi periksa kembali responsnya</p>
                 `;
 
-                // Scroll to bottom after content is updated
                 setTimeout(() => {
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }, 50);
@@ -1104,7 +1077,6 @@ ${data.fixed_code}
                     <div class="ai-text" style="color: red;">${DOMPurify.sanitize(marked.parse(`Error: ${error.message}`))}</div>
                 `;
 
-                // Scroll to bottom after error content is updated
                 setTimeout(() => {
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }, 50);
