@@ -692,6 +692,7 @@
         const sendBtn = document.getElementById('sendBtn');
         const welcomeState = document.getElementById('welcomeState');
         const chatContainer = document.getElementById('chatContainer');
+        const mainContent = document.querySelector('.main-content');
         const inputArea = document.getElementById('inputArea');
         const settingStatus = document.getElementById('setting-status');
 
@@ -906,8 +907,12 @@
             chatContainer.appendChild(typingEl);
 
             setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 50);
+               mainContent.scrollTo({
+                 top: mainContent.scrollHeight,
+                 behavior: 'smooth'
+             });
+               }, 50);
+
 
             try {
                 let requestBody = {};
@@ -1063,9 +1068,12 @@ ${data.fixed_code}
                     <p class="disclaimer">AI dapat membuat kesalahan, jadi periksa kembali responsnya</p>
                 `;
 
-                setTimeout(() => {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, 50);
+setTimeout(() => {
+    mainContent.scrollTo({
+        top: mainContent.scrollHeight,
+        behavior: 'smooth'
+    });
+}, 50);
 
             } catch (error) {
                 console.error('Error sending message:', error);
