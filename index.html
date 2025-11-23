@@ -905,13 +905,7 @@
                 </div>
             `;
             chatContainer.appendChild(typingEl);
-
-            setTimeout(() => {
-               mainContent.scrollTo({
-                 top: mainContent.scrollHeight,
-                 behavior: 'smooth'
-             });
-               }, 50);
+            typingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
 
             try {
@@ -1068,13 +1062,9 @@ ${data.fixed_code}
                     <p class="disclaimer">AI dapat membuat kesalahan, jadi periksa kembali responsnya</p>
                 `;
 
-setTimeout(() => {
-    mainContent.scrollTo({
-        top: mainContent.scrollHeight,
-        behavior: 'smooth'
-    });
-}, 50);
-
+                setTimeout(() => {
+                    typingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }, 100);
             } catch (error) {
                 console.error('Error sending message:', error);
                 typingEl.innerHTML = `
@@ -1089,12 +1079,10 @@ setTimeout(() => {
                             <path fill="url(#starGrad2)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
                         </svg>
                     </div>
-                    <div class="ai-text" style="color: red;">${DOMPurify.sanitize(marked.parse(`Error: ${error.message}`))}</div>
-                `;
-
+                    <div class="ai-text" style="color: red;">${DOMPurify.sanitize(marked.parse(`Error: ${error.message}`))}</div>`;
                 setTimeout(() => {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, 50);
+                    typingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }, 100);
             }
         }
     </script>
