@@ -784,7 +784,7 @@
         let currentChatId = null; // ID of the currently active chat
         let currentChatTitle = "Percakapan baru"; // Title for the current chat
         let currentMode = 'chat'; // Default mode
-        let currentModel = '@cf/meta/llama-3.1-8b-instruct-fp8'; // Default model
+        let currentModel = '@cf/meta/llama-3.2-3b-instruct'; // Default model
 
         document.addEventListener('DOMContentLoaded', () => {
             loadAllChats();
@@ -862,7 +862,7 @@
             currentChatId = chatToLoad.id;
             currentChatTitle = chatToLoad.title;
             currentMode = chatToLoad.mode || 'chat'; // Default to chat mode if not stored
-            currentModel = chatToLoad.model || '@cf/meta/llama-3.1-8b-instruct-fp8'; // Default model
+            currentModel = chatToLoad.model || '@cf/meta/llama-3.2-3b-instruct'; // Default model
 
             clearMainChatDisplay();
             chatToLoad.messages.forEach(msg => {
