@@ -1099,7 +1099,7 @@
         overlay.addEventListener('click', closeOverlay);
 
         modelAiBtn.addEventListener('click', () => {
-            const modelName = currentModel.includes('llama-3.2-3b-instruct') ? 'Llama 3.2' :
+            const modelName = currentModel.includes('llama-3.2') ? 'Llama 3.2' :
                              currentModel.includes('qwen2.5-coder-32b') ? 'Qwen' :
                              currentModel.includes('deepseek-r1-distill-qwen-32b') ? 'Deepseek' :
                              currentModel.split('/').pop();
