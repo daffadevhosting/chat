@@ -130,17 +130,9 @@
   </div>
 
 <script>
-/*
-  Usage Dashboard Script
-  - Configure API_BASE or choose 'mock' to use local fake data
-  - Expected endpoints:
-    GET ${API_BASE}/usage/today   -> { date, neurons_today, limit, requests_today, recent_requests: [...] }
-    GET ${API_BASE}/usage/history -> { history: [ {date, neurons}, ... ] }
-*/
-
 const DEFAULT_LIMIT = 10000;
-let API_BASE = "https://daffa-ai.mvstream.workers.dev";
-const REFRESH_INTERVAL = 15000; // ms
+let API_BASE = "https://daffa-ai.mvstream.workers.dev"; // FIXED
+const REFRESH_INTERVAL = 15000;
 let autoTimer = null;
 let usageChart = null;
 
@@ -148,7 +140,10 @@ document.addEventListener("DOMContentLoaded", init);
 
 function init(){
   const baseSelect = document.getElementById('baseSelect');
-  API_BASE = baseSelect.value;
+
+  // FIX → jangan override API_BASE berdasarkan dropdown
+  baseSelect.value = API_BASE;
+
   baseSelect.addEventListener('change', e => {
     API_BASE = e.target.value;
     fetchAll();
@@ -174,83 +169,63 @@ function showBanner(type, title, message){
     el.style.background = 'linear-gradient(180deg, rgba(110,231,183,0.02), rgba(110,231,183,0.01))';
   }
 }
-
 function hideBanner(){ document.getElementById('banner').style.display = 'none'; }
 
-f.chart-wrap {
-  height: 240px;
-  position: relative;
-}
-
-/* Fetchers */
 async function fetchToday(){
   if(API_BASE === 'mock') return mockToday();
-  const res = await fetch(`${API_BASE.replace(/\/$/,'')}/usage/today`, { cache: 'no-store' });
-  if(!res.ok) throw new Error('today fetch failed');
-  return res.json();
-}
-async function fetchHistory(){
-  if(API_BASE === 'mock') return mockHistory();
-  const res = await fetch(`${API_BASE.replace(/\/$/,'')}/usage/history`, { cache: 'no-store' });
-  if(!res.ok) throw new Error('history fetch failed');
+  const res = await fetch(`${API_BASE}/usage/today`, { cache: 'no-store' });
+  if(!res.ok) throw new Error('today fail');
   return res.json();
 }
 
-/* Renderers */
+async function fetchHistory(){
+  if(API_BASE === 'mock') return mockHistory();
+  const res = await fetch(`${API_BASE}/usage/history`, { cache: 'no-store' });
+  if(!res.ok) throw new Error('history fail');
+  return res.json();
+}
+
 function renderToday(data){
-  const date = data.date || (new Date()).toISOString().split('T')[0];
+  const date = data.date || new Date().toISOString().split('T')[0];
   const neurons = Number(data.neurons_today || 0);
   const limit = Number(data.limit || DEFAULT_LIMIT);
-  const requests = Number(data.requests_today || (data.recent_requests ? data.recent_requests.length : 0));
+  const requests = Number(data.requests_today || 0);
   const recent = data.recent_requests || [];
 
   const remaining = Math.max(limit - neurons, 0);
-  const pct = Math.min(100, (neurons / limit) * 100);
+  const pct = Math.min(100, neurons/limit * 100);
 
   document.getElementById('neuronsValue').textContent = neurons.toLocaleString();
   document.getElementById('remainingValue').textContent = remaining.toLocaleString();
   document.getElementById('requestsValue').textContent = requests.toLocaleString();
-  document.getElementById('neuronsExtra').textContent = `date: ${date} • requests: ${requests} • limit: ${limit.toLocaleString()}`;
+  document.getElementById('neuronsExtra').textContent = `date: ${date} • requests: ${requests}`;
 
-  // progress
-  const progressEl = document.getElementById('progress');
-  progressEl.style.width = pct + '%';
-  if(pct >= 95) {
-    progressEl.classList.add('danger');
-  } else {
-    progressEl.classList.remove('danger');
-  }
+  const progress = document.getElementById('progress');
+  progress.style.width = pct + '%';
+  pct >= 95 ? progress.classList.add('danger') : progress.classList.remove('danger');
 
-  // percent badge
   const badge = document.getElementById('percentBadge');
   badge.textContent = Math.round(pct) + '%';
-  badge.className = 'badge ' + (pct >= 95 ? 'red' : (pct >= 75 ? '' : 'green'));
+  badge.className = 'badge ' + (pct>=95?'red': pct>=75?'':'green');
 
-  // banner when >= 95% or >= limit
   if(neurons >= limit){
-    showBanner('danger', 'Global limit reached', `Neurons sudah mencapai limit ${limit.toLocaleString()} — generate diterima: TIDAK. Tunggu reset harian.`);
-  } else if (neurons >= Math.floor(limit * 0.95)){
-    showBanner('danger', 'Near limit', `Pemakaian sudah ${neurons.toLocaleString()} / ${limit.toLocaleString()} (${Math.round(pct)}%). Generate akan diblok saat mencapai ${Math.floor(limit*0.95)} neurons.`);
-  } else if (pct >= 75) {
-    showBanner('info','High usage', `Pemakaian hari ini ${neurons.toLocaleString()} (${Math.round(pct)}%). Monitor usage.`);
-  } else {
-    hideBanner();
-  }
+    showBanner('danger','Global limit reached',`Limit ${limit.toLocaleString()} tercapai.`);
+  } else if(pct >= 95){
+    showBanner('danger','Near limit',`Pemakaian ${neurons.toLocaleString()} / ${limit}.`);
+  } else hideBanner();
 
-  // recent table
   const tbody = document.getElementById('recentTable');
   tbody.innerHTML = '';
   if(recent.length === 0){
     tbody.innerHTML = `<tr><td colspan="4" class="center muted">No recent requests</td></tr>`;
   } else {
-    recent.slice(0,50).forEach(r => {
+    recent.slice(0,50).forEach(r=>{
       const tr = document.createElement('tr');
-      const time = new Date(r.time).toLocaleString();
       tr.innerHTML = `
-        <td style="width:200px">${time}</td>
-        <td>${escapeHtml(r.user || 'unknown')}</td>
-        <td>${Number(r.neurons || 0).toLocaleString()}</td>
-        <td style="color:var(--muted)">${escapeHtml(r.id || '')}</td>
+        <td>${new Date(r.time).toLocaleString()}</td>
+        <td>${r.user || 'unknown'}</td>
+        <td>${Number(r.neurons).toLocaleString()}</td>
+        <td style="color:var(--muted)">${r.id || ''}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -259,60 +234,69 @@ function renderToday(data){
 
 function renderHistory(data){
   const hist = data.history || [];
-  // Normalize to last 7 days (if less, pad with zeros)
-  const labels = [];
-  const values = [];
+  const labels=[];
+  const values=[];
+
   for(let i=6;i>=0;i--){
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+
     labels.push(key);
-    const found = hist.find(h => h.date === key);
-    values.push(found ? Number(found.neurons) : 0);
+    const f=hist.find(h=>h.date===key);
+    values.push(f?Number(f.neurons):0);
   }
 
-  usageChart.data.labels = labels.map(l => {
-    const d = new Date(l);
-    return d.toLocaleDateString();
-  });
+  usageChart.data.labels = labels.map(x => new Date(x).toLocaleDateString());
   usageChart.data.datasets[0].data = values;
   usageChart.update();
 }
 
-/* Helpers */
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function setupChart(){
+  const ctx=document.getElementById('usageChart').getContext('2d');
+  usageChart=new Chart(ctx,{
+    type:'bar',
+    data:{ labels:[], datasets:[{ label:'Neurons', data:[], backgroundColor:'rgba(110,231,183,0.18)', borderRadius:6 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#cbd5e1'}}, y:{beginAtZero:true,ticks:{color:'#cbd5e1'}}}}
+  });
+}
 
-/* Mock data (if backend not ready) */
 function mockToday(){
-  const now = new Date();
   return Promise.resolve({
-    date: now.toISOString().split('T')[0],
-    neurons_today: Math.floor(Math.random() * 9800),
-    limit: 10000,
-    requests_today: Math.floor(Math.random()*300),
-    recent_requests: Array.from({length:12}).map((_,i)=>({
-      time: new Date(Date.now() - i*60000).toISOString(),
-      user: `user${i%5}`,
-      neurons: Math.floor(Math.random()*500),
-      id: `req_mock_${Date.now()-i}`
-    }))
+    date:new Date().toISOString().split('T')[0],
+    neurons_today:Math.floor(Math.random()*9000),
+    limit:10000,
+    requests_today:30,
+    recent_requests:[]
   });
 }
 function mockHistory(){
-  const arr = [];
-  for(let i=6;i>=0;i--){
-    const d = new Date(); d.setDate(d.getDate() - i);
-    arr.push({ date: d.toISOString().split('T')[0], neurons: Math.floor(Math.random()*9000) });
-  }
-  return Promise.resolve({ history: arr });
+  return Promise.resolve({
+    history:Array.from({length:7}).map(()=>({
+      date:new Date().toISOString().split('T')[0],
+      neurons:Math.floor(Math.random()*9000)
+    }))
+  });
 }
 
-/* Render fallback if errors */
+function fetchAll(){
+  Promise.all([fetchToday(),fetchHistory()])
+    .then(([today,history])=>{
+      renderToday(today);
+      renderHistory(history);
+    })
+    .catch(e=>{
+      console.error(e);
+      renderMock();
+      showBanner('danger','Error fetching API','Using mock data.');
+    });
+}
+
 function renderMock(){
-  Promise.all([mockToday(), mockHistory()]).then(([t,h])=>{
-    renderToday(t);
-    renderHistory(h);
-  });
+  Promise.all([mockToday(), mockHistory()])
+    .then(([t,h])=>{
+      renderToday(t);
+      renderHistory(h);
+    });
 }
 </script>
 </body>
