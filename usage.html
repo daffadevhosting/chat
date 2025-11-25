@@ -26,7 +26,6 @@
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .big{grid-column:span 3}
-    .row{display:flex;gap:12px;align-items:center}
     .stat{padding:12px;border-radius:10px;background:var(--glass);flex:1}
     .label{font-size:12px;color:var(--muted)}
     .value{font-size:18px;font-weight:700}
@@ -42,8 +41,7 @@
     .green{background:rgba(110,231,183,0.12);color:var(--accent);border:1px solid rgba(110,231,183,0.06)}
     .red{background:rgba(255,107,107,0.08);color:var(--danger);border:1px solid rgba(255,107,107,0.06)}
     .center{display:flex;align-items:center;justify-content:center}
-.chart-wrap { height: 240px;position: relative;}
-    /* responsive */
+    .chart-wrap { height: 240px; position: relative; }
     @media (max-width:900px){
       .grid{grid-template-columns:repeat(1,1fr)}
       .big{grid-column:span 1}
@@ -60,14 +58,12 @@
       <div class="flex">
         <button id="refreshBtn" class="btn">Refresh</button>
         <select id="baseSelect" class="btn">
-          <option value="https://daffa-ai.mvstream.workers.dev">Production</option>
-          <option value="https://staging.example.com">Staging</option>
-          <option value="mock">Local Mock</option>
+          <option value="https://daffa-ai.mvstream.workers.dev" selected>Production</option>
+          <option value="mock">Mock Mode</option>
         </select>
       </div>
     </header>
 
-    <!-- Banner -->
     <div id="banner" class="card" style="display:none"></div>
 
     <div class="grid">
@@ -75,9 +71,7 @@
         <div class="label">Neurons used today</div>
         <div class="value" id="neuronsValue">—</div>
         <div class="muted" id="neuronsExtra">requests: — • limit: 10000</div>
-        <div class="progress-wrap" aria-hidden="true">
-          <div id="progress" class="progress"></div>
-        </div>
+        <div class="progress-wrap"><div id="progress" class="progress"></div></div>
       </div>
 
       <div class="card stat">
@@ -94,265 +88,4 @@
 
       <div class="card big" style="padding:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div><strong>7-day Neurons Usage</strong><div class="muted">Last 7 days</div></div>
-          <div class="flex">
-            <div id="percentBadge" class="badge green">OK</div>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="usageChart"></canvas>
-        </div>
-      </div>
-
-      <div class="card big">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <strong>Recent requests</strong>
-          <div class="muted">live • newest first</div>
-        </div>
-
-        <div style="max-height:280px;overflow:auto">
-          <table>
-            <thead>
-              <tr><th>Time</th><th>User</th><th>Neurons</th><th>ID</th></tr>
-            </thead>
-            <tbody id="recentTable">
-              <tr><td colspan="4" class="center muted">No data</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <footer style="text-align:center;color:var(--muted);font-size:13px;margin-top:8px">
-      Auto-refresh every 15s • Built for Cloudflare Workers KV usage monitoring
-    </footer>
-  </div>
-
-<script>
-/*
-  Usage Dashboard Script
-  - Configure API_BASE or choose 'mock' to use local fake data
-  - Expected endpoints:
-    GET ${API_BASE}/usage/today   -> { date, neurons_today, limit, requests_today, recent_requests: [...] }
-    GET ${API_BASE}/usage/history -> { history: [ {date, neurons}, ... ] }
-*/
-
-const DEFAULT_LIMIT = 10000;
-let API_BASE = "https://daffa-ai.mvstream.workers.dev";
-const REFRESH_INTERVAL = 15000; // ms
-let autoTimer = true;
-let usageChart = true;
-
-document.addEventListener("DOMContentLoaded", init);
-
-function init(){
-  const baseSelect = document.getElementById('baseSelect');
-  API_BASE = baseSelect.value;
-  baseSelect.addEventListener('change', e => {
-    API_BASE = e.target.value;
-    fetchAll();
-  });
-
-  document.getElementById('refreshBtn').addEventListener('click', fetchAll);
-
-  setupChart();
-  fetchAll();
-  autoTimer = setInterval(fetchAll, REFRESH_INTERVAL);
-}
-
-function showBanner(type, title, message){
-  const el = document.getElementById('banner');
-  el.style.display = 'block';
-  el.innerHTML = `<strong style="display:block;margin-bottom:6px">${title}</strong><div class="muted">${message}</div>`;
-  el.className = 'card';
-  if(type === 'danger'){
-    el.style.border = '1px solid rgba(255,107,107,0.12)';
-    el.style.background = 'linear-gradient(180deg, rgba(255,107,107,0.03), rgba(255,107,107,0.02))';
-  } else {
-    el.style.border = '1px solid rgba(110,231,183,0.06)';
-    el.style.background = 'linear-gradient(180deg, rgba(110,231,183,0.02), rgba(110,231,183,0.01))';
-  }
-}
-
-function hideBanner(){ document.getElementById('banner').style.display = 'none'; }
-
-function setupChart() {
-  const ctx = document.getElementById('usageChart').getContext('2d');
-  usageChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Neurons',
-        data: [],
-        borderRadius: 6,
-        barPercentage: 0.6,
-        backgroundColor: 'rgba(110,231,183,0.16)'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,  // WAJIB kalau tinggi custom
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: { ticks: { color: '#cbd5e1' }, grid: { display: false } },
-        y: { ticks: { color: '#cbd5e1' }, beginAtZero: true }
-      }
-    }
-  });
-}
-
-async function fetchAll(){
-  hideBanner();
-  try {
-    const [today, history] = await Promise.all([
-      fetchToday(),
-      fetchHistory()
-    ]);
-    renderToday(today);
-    renderHistory(history);
-  } catch(err){
-    console.error('Fetch error', err);
-    showBanner('danger','Could not fetch usage data', 'Check API_BASE or backend endpoints. Using mock values.');
-    renderMock();
-  }
-}
-
-/* Fetchers */
-async function fetchToday(){
-  if(API_BASE === 'mock') return mockToday();
-  const res = await fetch(`${API_BASE.replace(/\/$/,'')}/usage/today`, { cache: 'no-store' });
-  if(!res.ok) throw new Error('today fetch failed');
-  return res.json();
-}
-async function fetchHistory(){
-  if(API_BASE === 'mock') return mockHistory();
-  const res = await fetch(`${API_BASE.replace(/\/$/,'')}/usage/history`, { cache: 'no-store' });
-  if(!res.ok) throw new Error('history fetch failed');
-  return res.json();
-}
-
-/* Renderers */
-function renderToday(data){
-  const date = data.date || (new Date()).toISOString().split('T')[0];
-  const neurons = Number(data.neurons_today || 0);
-  const limit = Number(data.limit || DEFAULT_LIMIT);
-  const requests = Number(data.requests_today || (data.recent_requests ? data.recent_requests.length : 0));
-  const recent = data.recent_requests || [];
-
-  const remaining = Math.max(limit - neurons, 0);
-  const pct = Math.min(100, (neurons / limit) * 100);
-
-  document.getElementById('neuronsValue').textContent = neurons.toLocaleString();
-  document.getElementById('remainingValue').textContent = remaining.toLocaleString();
-  document.getElementById('requestsValue').textContent = requests.toLocaleString();
-  document.getElementById('neuronsExtra').textContent = `date: ${date} • requests: ${requests} • limit: ${limit.toLocaleString()}`;
-
-  // progress
-  const progressEl = document.getElementById('progress');
-  progressEl.style.width = pct + '%';
-  if(pct >= 95) {
-    progressEl.classList.add('danger');
-  } else {
-    progressEl.classList.remove('danger');
-  }
-
-  // percent badge
-  const badge = document.getElementById('percentBadge');
-  badge.textContent = Math.round(pct) + '%';
-  badge.className = 'badge ' + (pct >= 95 ? 'red' : (pct >= 75 ? '' : 'green'));
-
-  // banner when >= 95% or >= limit
-  if(neurons >= limit){
-    showBanner('danger', 'Global limit reached', `Neurons sudah mencapai limit ${limit.toLocaleString()} — generate diterima: TIDAK. Tunggu reset harian.`);
-  } else if (neurons >= Math.floor(limit * 0.95)){
-    showBanner('danger', 'Near limit', `Pemakaian sudah ${neurons.toLocaleString()} / ${limit.toLocaleString()} (${Math.round(pct)}%). Generate akan diblok saat mencapai ${Math.floor(limit*0.95)} neurons.`);
-  } else if (pct >= 75) {
-    showBanner('info','High usage', `Pemakaian hari ini ${neurons.toLocaleString()} (${Math.round(pct)}%). Monitor usage.`);
-  } else {
-    hideBanner();
-  }
-
-  // recent table
-  const tbody = document.getElementById('recentTable');
-  tbody.innerHTML = '';
-  if(recent.length === 0){
-    tbody.innerHTML = `<tr><td colspan="4" class="center muted">No recent requests</td></tr>`;
-  } else {
-    recent.slice(0,50).forEach(r => {
-      const tr = document.createElement('tr');
-      const time = new Date(r.time).toLocaleString();
-      tr.innerHTML = `
-        <td style="width:200px">${time}</td>
-        <td>${escapeHtml(r.user || 'unknown')}</td>
-        <td>${Number(r.neurons || 0).toLocaleString()}</td>
-        <td style="color:var(--muted)">${escapeHtml(r.id || '')}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-}
-
-function renderHistory(data){
-  const hist = data.history || [];
-  // Normalize to last 7 days (if less, pad with zeros)
-  const labels = [];
-  const values = [];
-  for(let i=6;i>=0;i--){
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
-    labels.push(key);
-    const found = hist.find(h => h.date === key);
-    values.push(found ? Number(found.neurons) : 0);
-  }
-
-  usageChart.data.labels = labels.map(l => {
-    const d = new Date(l);
-    return d.toLocaleDateString();
-  });
-  usageChart.data.datasets[0].data = values;
-  usageChart.update();
-}
-
-/* Helpers */
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-/* Mock data (if backend not ready) */
-function mockToday(){
-  const now = new Date();
-  return Promise.resolve({
-    date: now.toISOString().split('T')[0],
-    neurons_today: Math.floor(Math.random() * 9800),
-    limit: 10000,
-    requests_today: Math.floor(Math.random()*300),
-    recent_requests: Array.from({length:12}).map((_,i)=>({
-      time: new Date(Date.now() - i*60000).toISOString(),
-      user: `user${i%5}`,
-      neurons: Math.floor(Math.random()*500),
-      id: `req_mock_${Date.now()-i}`
-    }))
-  });
-}
-function mockHistory(){
-  const arr = [];
-  for(let i=6;i>=0;i--){
-    const d = new Date(); d.setDate(d.getDate() - i);
-    arr.push({ date: d.toISOString().split('T')[0], neurons: Math.floor(Math.random()*9000) });
-  }
-  return Promise.resolve({ history: arr });
-}
-
-/* Render fallback if errors */
-function renderMock(){
-  Promise.all([mockToday(), mockHistory()]).then(([t,h])=>{
-    renderToday(t);
-    renderHistory(h);
-  });
-}
-</script>
-</body>
-</html>
+          <div><strong>7-day Neurons Usage</strong><div class="
