@@ -78,6 +78,7 @@
         }
 
         /* Welcome State */
+        #welcomeText { text-align: center; }
         .welcome-state {
             flex: 1;
             display: flex;
@@ -95,7 +96,7 @@
             position: absolute;
             width: 100%;
         }
-        
+
 .scroll-to-top {
   z-index: 9999;
 }
@@ -588,7 +589,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .offcanvas-chat-item:hover {
             background: rgba(255, 255, 255, 0.2);
         }
@@ -666,7 +667,7 @@
                 <path fill="url(#sparkleGradient)" d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"/>
                 <path fill="url(#sparkleGradient)" d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"/>
             </svg>
-            <p class="welcome-text">Apa yang bisa saya bantu?</p>
+            <p class="welcome-text" id="welcomeText">Apa yang bisa saya bantu?</p>
         </div>
 
         <!-- Chat Container -->
@@ -758,6 +759,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.0/dist/purify.min.js"></script>
 
     <script>
+        const welcomeTextEl = document.getElementById('welcomeText');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const welcomeState = document.getElementById('welcomeState');
@@ -786,14 +788,27 @@
         let currentMode = 'chat'; // Default mode
         let currentModel = '@cf/meta/llama-3.2-3b-instruct'; // Default model
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAllChats();
-            updateModelButtonText();
-            updateSettingStatus();
-            highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
-            highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
-            updateMessageInputPlaceholder();
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    loadAllChats();
+    updateModelButtonText();
+    updateSettingStatus();
+    highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
+    highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
+    updateMessageInputPlaceholder();
+    updateWelcomeText();
+});
+        
+function updateWelcomeText() {
+    let welcomeMessage = "Apa yang bisa saya bantu?";
+    if (currentMode === 'analyze-repo') {
+        welcomeMessage = "Berikan URL repo kamu untuk dianalisis! \n (e.g., https://github.com/owner/repo)";
+    } else if (currentMode === 'generate-code') {
+        welcomeMessage = "Berikan persyaratan kamu untuk generate kode!";
+    } else if (currentMode === 'fix-error') {
+        welcomeMessage = "Format perbaikan:\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
+    }
+    welcomeTextEl.textContent = welcomeMessage;
+}
 
         function generateUniqueId() {
             return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
@@ -847,12 +862,13 @@
             };
             allChats.push(newChat);
 
-            clearMainChatDisplay(); // Clear visible messages in main chat
+            clearMainChatDisplay();
             updateSettingStatus();
             updateModelButtonText();
             updateMessageInputPlaceholder();
-            saveAllChats(); // Persist the new empty chat
-            closeOverlay(); // Close any open overlays
+            updateWelcomeText();
+            saveAllChats();
+            closeOverlay();
         }
 
         function loadChat(chatId) {
@@ -897,8 +913,9 @@
             updateSettingStatus();
             updateModelButtonText();
             updateMessageInputPlaceholder();
+            updateWelcomeText();
             saveAllChats(); // Update lastActiveChatId
-            closeOverlay(); // Close offcanvas after loading chat
+            closeOverlay(); // Close offcanvas
         }
 
         function clearMainChatDisplay() {
@@ -979,7 +996,7 @@
                 offcanvasChatHistoryContent.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>';
                 return;
             }
-            
+
             // Render in reverse so newest are on top
             [...allChats].reverse().forEach(chat => {
                 const historyItem = document.createElement('button');
@@ -1037,8 +1054,8 @@
         function updateModelButtonText() {
             let shortName = currentModel;
 
-            if (currentModel.includes('llama-3.1-8b')) {
-                shortName = 'Llama 3';
+            if (currentModel.includes('meta/llama-3.2-3b-instruct')) {
+                shortName = 'Llama 3-2';
             } else if (currentModel.includes('qwen2.5-coder-32b')) {
                 shortName = 'Qwen';
             } else if (currentModel.includes('deepseek-r1-distill-qwen-32b')) {
@@ -1120,7 +1137,7 @@
         });
 
         closeOffcanvasBtn.addEventListener('click', closeOverlay);
-        
+
         newChatBtn.addEventListener('click', () => {
             startNewChat(currentMode); // Start new chat with current mode
         });
@@ -1135,6 +1152,7 @@
                 updateSettingStatus();
                 updateModelBasedOnMode();
                 highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
+                updateWelcomeText();
                 closeOverlay();
             });
         });
@@ -1142,11 +1160,11 @@
         function updateMessageInputPlaceholder() {
             let placeholderText = "Silahkan Minta Apapun";
             if (currentMode === 'analyze-repo') {
-                placeholderText = "Masukkan URL repo (e.g., https://github.com/owner/repo)";
+                placeholderText = "Masukkan URL repo";
             } else if (currentMode === 'generate-code') {
-                placeholderText = "Masukkan persyaratan untuk generate kode";
+                placeholderText = "Tuliskan persyaratan";
             } else if (currentMode === 'fix-error') {
-                placeholderText = "Masukkan kode dan error dalam format:\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
+                placeholderText = "Masukkan kode dan error dalam format";
             }
             messageInput.placeholder = placeholderText;
         }
