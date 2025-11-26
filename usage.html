@@ -41,9 +41,7 @@
     .badge{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px}
     .green{background:rgba(110,231,183,0.12);color:var(--accent);border:1px solid rgba(110,231,183,0.06)}
     .red{background:rgba(255,107,107,0.08);color:var(--danger);border:1px solid rgba(255,107,107,0.06)}
-    .center{display:flex;align-items:center;justify-content:center }.chart-wrap {
-  height: 240px; position: relative;
-}
+    .center{display:flex;align-items:center;justify-content:center }.chart-wrap { height: 240px; position: relative;}.hidden{ display:none;}
     /* responsive */
     @media (max-width:900px){
       .grid{grid-template-columns:repeat(1,1fr)}
@@ -110,7 +108,7 @@
           <div class="muted">live • newest first</div>
         </div>
 
-        <div style="max-height:280px;overflow:auto">
+        <div class="hidden" style="max-height:280px;overflow:auto">
           <table>
             <thead>
               <tr><th>Time</th><th>User</th><th>Neurons</th><th>ID</th></tr>
@@ -125,7 +123,7 @@
     </div>
 
     <footer style="text-align:center;color:var(--muted);font-size:13px;margin-top:8px">
-      Auto-refresh every 15s • Built for Cloudflare Workers KV usage monitoring
+      Auto-refresh every 15s • Built for Chat usage monitoring
     </footer>
   </div>
 
