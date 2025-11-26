@@ -758,7 +758,7 @@
             <!-- Chat history items will be dynamically added here -->
             <p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>
         </div>
-        <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+        <button class="btn new-chat-btn" id="newChatBtn">New Chat</button>
     </div>
 
     <!-- Load required libraries -->
@@ -855,7 +855,7 @@ function updateWelcomeText() {
 
         function startNewChat(mode = 'chat') {
             currentChatId = generateUniqueId();
-            currentChatTitle = `Obrolan (${new Date().toLocaleString()})`;
+            currentChatTitle = `Obrolan\n(${new Date().toLocaleString()})`;
             currentMode = mode;
             updateModelBasedOnMode();
 
@@ -895,8 +895,6 @@ function updateWelcomeText() {
                 }
             });
 
-            // Re-assign chatContext to the messages of the loaded chat
-            // This is important because subsequent messages will be pushed to this array
             const currentChat = findCurrentChat();
             if (currentChat) {
                 currentChat.messages = chatToLoad.messages;
@@ -1248,7 +1246,7 @@ function updateWelcomeText() {
                     endpoint = '/generate-code';
                     requestBody = {
                         requirements: message,
-                        language: 'javascript', // Assuming default language for now
+                        language: 'javascript',
                         model: currentModel
                     };
                 } else if (currentMode === 'fix-error') {
