@@ -789,11 +789,11 @@
         const BACKEND_URL = 'https://daffa-ai.mvstream.workers.dev';
 
         // Global vars for chat history
-        let allChats = []; // Array to store all chat conversations
-        let currentChatId = null; // ID of the currently active chat
-        let currentChatTitle = "Percakapan baru"; // Title for the current chat
-        let currentMode = 'chat'; // Default mode
-        let currentModel = '@cf/meta/llama-3.2-3b-instruct'; // Default model
+        let allChats = [];
+        let currentChatId = null;
+        let currentChatTitle = "Obrolan";
+        let currentMode = 'chat';
+        let currentModel = '@cf/meta/llama-3.2-3b-instruct';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAllChats();
@@ -826,20 +826,19 @@ function updateWelcomeText() {
             if (storedChats) {
                 allChats = JSON.parse(storedChats);
             } else {
-                startNewChat(); // Initialize with a new chat if no history
-                return; // Exit after starting new chat
+                startNewChat();
+                return;
             }
 
             const lastActiveChatId = localStorage.getItem('lastActiveChatId');
             if (lastActiveChatId && allChats.some(chat => chat.id === lastActiveChatId)) {
                 loadChat(lastActiveChatId);
             } else if (allChats.length > 0) {
-                // Load the most recent chat if no specific one was active
                 loadChat(allChats[allChats.length - 1].id);
             } else {
                 startNewChat();
             }
-            renderChatHistoryList(); // Render history list immediately
+            renderChatHistoryList();
         }
 
         function saveAllChats() {
@@ -847,7 +846,7 @@ function updateWelcomeText() {
             if (currentChatId) {
                 localStorage.setItem('lastActiveChatId', currentChatId);
             }
-            renderChatHistoryList(); // Update history list after saving
+            renderChatHistoryList();
         }
 
         function findCurrentChat() {
@@ -857,8 +856,8 @@ function updateWelcomeText() {
         function startNewChat(mode = 'chat') {
             currentChatId = generateUniqueId();
             currentChatTitle = `Percakapan baru (${new Date().toLocaleString()})`;
-            currentMode = mode; // Set mode for new chat
-            updateModelBasedOnMode(); // Update model based on the new mode
+            currentMode = mode;
+            updateModelBasedOnMode();
 
             const newChat = {
                 id: currentChatId,
@@ -884,8 +883,8 @@ function updateWelcomeText() {
 
             currentChatId = chatToLoad.id;
             currentChatTitle = chatToLoad.title;
-            currentMode = chatToLoad.mode || 'chat'; // Default to chat mode if not stored
-            currentModel = chatToLoad.model || '@cf/meta/llama-3.2-3b-instruct'; // Default model
+            currentMode = chatToLoad.mode || 'chat';
+            currentModel = chatToLoad.model || '@cf/meta/llama-3.2-3b-instruct';
 
             clearMainChatDisplay();
             chatToLoad.messages.forEach(msg => {
@@ -921,13 +920,13 @@ function updateWelcomeText() {
             updateModelButtonText();
             updateMessageInputPlaceholder();
             updateWelcomeText();
-            saveAllChats(); // Update lastActiveChatId
-            closeOverlay(); // Close offcanvas
+            saveAllChats();
+            closeOverlay();
         }
 
         function clearMainChatDisplay() {
             chatContainer.innerHTML = '';
-            welcomeState.classList.remove('hidden'); // Show welcome state initially
+            welcomeState.classList.remove('hidden');
             chatContainer.classList.remove('active');
             inputArea.classList.remove('chat-mode-active');
         }
@@ -997,14 +996,13 @@ function updateWelcomeText() {
 
 
         function renderChatHistoryList() {
-            offcanvasChatHistoryContent.innerHTML = ''; // Clear existing list
+            offcanvasChatHistoryContent.innerHTML = '';
 
             if (allChats.length === 0) {
                 offcanvasChatHistoryContent.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>';
                 return;
             }
 
-            // Render in reverse so newest are on top
             [...allChats].reverse().forEach(chat => {
                 const historyItem = document.createElement('button');
                 historyItem.className = 'offcanvas-chat-item';
@@ -1026,7 +1024,7 @@ function updateWelcomeText() {
 
                 historyItem.addEventListener('click', (e) => {
                     if (e.target.classList.contains('delete-chat-icon')) {
-                        e.stopPropagation(); // Prevent the chat from loading
+                        e.stopPropagation();
                         handleDeleteChat(chat.id);
                     } else {
                         loadChat(chat.id);
@@ -1044,16 +1042,13 @@ function updateWelcomeText() {
             allChats = allChats.filter(chat => chat.id !== chatIdToDelete);
 
             if (currentChatId === chatIdToDelete) {
-                currentChatId = null; // Unset current chat
+                currentChatId = null;
                 if (allChats.length > 0) {
-                    // Load the most recent remaining chat
                     loadChat(allChats[allChats.length - 1].id);
                 } else {
-                    // No chats left, start a new one, which also saves
                     startNewChat();
                 }
             } else {
-                 // If we deleted an inactive chat, just save and re-render the list
                  saveAllChats(); 
             }
         }
@@ -1139,14 +1134,14 @@ function updateWelcomeText() {
 
         chatHistoryBtn.addEventListener('click', () => {
             openOverlay();
-            renderChatHistoryList(); // Ensure history is updated before opening
+            renderChatHistoryList();
             chatHistoryOffcanvas.classList.add('active');
         });
 
         closeOffcanvasBtn.addEventListener('click', closeOverlay);
 
         newChatBtn.addEventListener('click', () => {
-            startNewChat(currentMode); // Start new chat with current mode
+            startNewChat(currentMode);
         });
 
         settingsActionSheet.querySelectorAll('button').forEach(button => {
@@ -1154,7 +1149,7 @@ function updateWelcomeText() {
                 const newMode = e.currentTarget.dataset.mode;
                 if (newMode !== currentMode) {
                     currentMode = newMode;
-                    startNewChat(newMode); // Start a new chat when mode changes
+                    startNewChat(newMode);
                 }
                 updateSettingStatus();
                 updateModelBasedOnMode();
@@ -1202,7 +1197,7 @@ function updateWelcomeText() {
 
             displayUserMessage(message);
             currentChat.messages.push({ role: 'user', content: message });
-            saveAllChats(); // Save chat after user message
+            saveAllChats();
 
             messageInput.value = '';
 
@@ -1240,7 +1235,7 @@ function updateWelcomeText() {
                     endpoint = '/chat';
                     requestBody = {
                         message: message,
-                        context: currentChat.messages, // Use current chat's messages as context
+                        context: currentChat.messages,
                         model: currentModel
                     };
                 } else if (currentMode === 'analyze-repo') {
@@ -1354,21 +1349,21 @@ ${data.fixed_code}
                     aiResponseText = JSON.stringify(data, null, 2);
                 }
 
-                typingEl.remove(); // Remove typing indicator
+                typingEl.remove();
                 displayAIMessage(aiResponseText);
                 currentChat.messages.push({ role: 'assistant', content: aiResponseText });
-                saveAllChats(); // Save chat after AI message
+                saveAllChats();
 
                 setTimeout(() => {
                     chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
                 }, 100);
             } catch (error) {
                 console.error('Error sending message:', error);
-                typingEl.remove(); // Remove typing indicator
+                typingEl.remove();
                 const errorText = `Error: ${error.message}`;
-                displayAIMessage(errorText); // Display error as an AI message
+                displayAIMessage(errorText);
                 currentChat.messages.push({ role: 'assistant', content: errorText });
-                saveAllChats(); // Save chat after error message
+                saveAllChats();
 
                 setTimeout(() => {
                     chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
