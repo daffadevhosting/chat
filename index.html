@@ -80,12 +80,10 @@
         /* Welcome State */
         #welcomeText { text-align: center; }
         .welcome-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-top: 100px;
-            padding: 2rem;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
