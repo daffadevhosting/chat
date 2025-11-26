@@ -816,7 +816,7 @@ function updateWelcomeText() {
     } else if (currentMode === 'generate-code') {
         welcomeMessage = "Berikan persyaratan kamu untuk generate kode!";
     } else if (currentMode === 'fix-error') {
-        welcomeMessage = "Format perbaikan:\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
+        welcomeMessage = "\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
     }
     welcomeTextEl.textContent = welcomeMessage;
 }
