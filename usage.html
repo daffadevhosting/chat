@@ -58,7 +58,7 @@
       </div>
       <div class="flex">
         <button id="refreshBtn" class="btn">Refresh</button>
-        <select id="baseSelect" class="btn">
+        <select id="baseSelect" class="hidden btn">
           <option value="https://daffa-ai.mvstream.workers.dev">Production</option>
           <option value="mock">Local</option>
         </select>
@@ -102,13 +102,13 @@
 </div>
       </div>
 
-      <div class="card big">
+      <div class="hidden card big">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <strong>Recent requests</strong>
           <div class="muted">live • newest first</div>
         </div>
 
-        <div class="hidden" style="max-height:280px;overflow:auto">
+        <div style="max-height:280px;overflow:auto">
           <table>
             <thead>
               <tr><th>Time</th><th>User</th><th>Neurons</th><th>ID</th></tr>
