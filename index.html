@@ -750,11 +750,11 @@
     <!-- Model AI Action Sheet -->
     <div class="action-sheet" id="modelAiActionSheet">
         <div class="action-sheet-title">Pilih Model AI</div>
-        <button data-model="google/gemini-3-flash">
-            <span>gemini-3</span>
+        <button data-model="@cf/meta/llama-3.1-8b-instruct-fp8">
+            <span>llama-3</span>
             <span class="selected-indicator"></span>
         </button>
-        <button data-model="alibaba/qwen3-max">
+        <button data-model="@cf/qwen/qwen2.5-coder-32b-instruct">
             <span>qwen</span>
             <span class="selected-indicator"></span>
         </button>
@@ -830,7 +830,7 @@
         let currentChatId = null;
         let currentChatTitle = "Obrolan";
         let currentMode = 'chat';
-        let currentModel = 'google/gemini-3-flash';
+        let currentModel = '@cf/meta/llama-3.2-3b-instruct';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAllChats();
@@ -921,7 +921,7 @@ function updateWelcomeText() {
             currentChatId = chatToLoad.id;
             currentChatTitle = chatToLoad.title;
             currentMode = chatToLoad.mode || 'chat';
-            currentModel = chatToLoad.model || 'google/gemini-3-flash';
+            currentModel = chatToLoad.model || '@cf/meta/llama-3.2-3b-instruct';
 
             clearMainChatDisplay();
             chatToLoad.messages.forEach(msg => {
@@ -1091,12 +1091,12 @@ function updateWelcomeText() {
         function updateModelButtonText() {
             let shortName = currentModel;
 
-            if (currentModel.includes('google/gemini-3-flash')) {
-                shortName = 'Gemini 3';
-            } else if (currentModel.includes('alibaba/qwen3-max')) {
+            if (currentModel.includes('meta/llama-3.2-3b-instruct')) {
+                shortName = 'Llama 3-2';
+            } else if (currentModel.includes('qwen2.5-coder-32b')) {
                 shortName = 'Qwen';
-            } else if (currentModel.includes('anthropic/claude-opus-4.7')) {
-                shortName = 'Claude';
+            } else if (currentModel.includes('deepseek-r1-distill-qwen-32b')) {
+                shortName = 'Deepseek';
             } else {
                 shortName = currentModel.split('/').pop();
             }
@@ -1111,17 +1111,17 @@ function updateWelcomeText() {
         function updateModelBasedOnMode() {
             switch(currentMode) {
                 case 'chat':
-                    currentModel = 'google/gemini-3-flash';
+                    currentModel = '@cf/meta/llama-3.2-3b-instruct';
                     break;
                 case 'analyze-repo':
                 case 'fix-error':
-                    currentModel = 'anthropic/claude-opus-4.7';
+                    currentModel = '@cf/qwen/qwen2.5-coder-32b-instruct';
                     break;
                 case 'generate-code':
-                    currentModel = 'alibaba/qwen3-max';
+                    currentModel = '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b';
                     break;
                 default:
-                    currentModel = 'google/gemini-3-flash';
+                    currentModel = '@cf/meta/llama-3.2-3b-instruct';
             }
             updateModelButtonText();
             highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
@@ -1153,9 +1153,9 @@ function updateWelcomeText() {
         overlay.addEventListener('click', closeOverlay);
 
         modelAiBtn.addEventListener('click', () => {
-            const modelName = currentModel.includes('gemini-3-flash') ? 'gemini-3-flash' :
-                             currentModel.includes('claude-opus-4.7') ? 'Claude' :
-                             currentModel.includes('qwen3-max') ? 'Qwen' :
+            const modelName = currentModel.includes('llama-3.2') ? 'Llama 3.2' :
+                             currentModel.includes('qwen2.5-coder-32b') ? 'Qwen' :
+                             currentModel.includes('deepseek-r1-distill-qwen-32b') ? 'Deepseek' :
                              currentModel.split('/').pop();
             const modeName = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             alert(`Currently using ${modelName} model for ${modeName} mode. Model selection is now automatic based on the mode.`);
