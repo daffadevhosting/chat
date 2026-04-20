@@ -1029,46 +1029,7 @@ function updateWelcomeText() {
             });
         }
 
-function showTypingThenError(errorMessage) {
-    const typingErrorEl = document.createElement('div');
-    typingErrorEl.className = 'ai-response';
-    typingErrorEl.innerHTML = `<div class="ai-header">
-                    <svg class="gemini-sparkle" viewBox="0 0 24 24" width="24" height="24">
-                        <defs>
-                            <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#4285f4"/>
-                                <stop offset="100%" style="stop-color:#34a853"/>
-                            </linearGradient>
-                        </defs>
-                        <path fill="url(#sparkleGradient)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
-                        <path fill="url(#sparkleGradient)" d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"/>
-                        <path fill="url(#sparkleGradient)" d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"/>
-                    </svg>
-                </div>
-                <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>`;
-    chatContainer.appendChild(typingErrorEl);
-    typingErrorEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-    setTimeout(() => {
-        if (typingErrorEl && typingErrorEl.parentNode) {
-            typingErrorEl.remove();
-        }
-        displayAIMessage(errorMessage);
-        const currentChat = findCurrentChat();
-        if (currentChat) {
-            currentChat.messages.push({ role: 'assistant', content: errorMessage });
-            saveAllChats();
-        }
-        setTimeout(() => {
-            chatContainer.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 100);
-    }, 1500);
-}
-        
         function renderChatHistoryList() {
             offcanvasChatHistoryContent.innerHTML = '';
 
@@ -1431,29 +1392,19 @@ ${data.fixed_code}
                 setTimeout(() => {
                     chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
                 }, 100);
-             } catch (error) {
-    console.error('Error sending message:', error);
-    typingEl.remove(); // hapus typing indikator asli
+            } catch (error) {
+                console.error('Error sending message:', error);
+                typingEl.remove();
+                const errorText = `Error: ${error.message}`;
+                displayAIMessage(errorText);
+                currentChat.messages.push({ role: 'assistant', content: errorText });
+                saveAllChats();
 
-    let errorText = `Error: ${error.message}`;
-    // Deteksi lebih fleksibel
-    const isOffensiveError = /tidak sopan|kasar|toxic|konten tidak pantas|dilarang|kata-kata kasar/i.test(error.message);
-
-    if (isOffensiveError) {
-        console.log('Offensive error detected, showing typing indicator first');
-        showTypingThenError(errorText);
-    } else {
-        displayAIMessage(errorText);
-        const currentChat = findCurrentChat();
-        if (currentChat) {
-            currentChat.messages.push({ role: 'assistant', content: errorText });
-            saveAllChats();
+                setTimeout(() => {
+                    chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }, 100);
+            }
         }
-        setTimeout(() => {
-            chatContainer.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 100);
-    }
-}
     </script>
 </body>
 </html>
