@@ -2,203 +2,261 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem mini</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gem Mini AI</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <style>
-        
-/* 1. Lebar scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+        /* 1. Scrollbar Kustom Monokrom */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
 
-/* 2. Latar belakang (Track) */
-::-webkit-scrollbar-track {
-  background: #131314; 
-}
+        ::-webkit-scrollbar-track {
+            background: #0b0b0c; 
+        }
 
-/* 3. Penanda (Thumb) */
-::-webkit-scrollbar-thumb {
-  background: #888; 
-}
+        ::-webkit-scrollbar-thumb {
+            background: #2c2c30; 
+            border-radius: 999px;
+        }
 
-/* Efek saat kursor diarahkan ke penanda */
-::-webkit-scrollbar-thumb:hover {
-  background: #555; 
-}
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46; 
+        }
+
+        /* Variabel CSS Premium */
+        :root {
+            --bg-pure: #0b0b0c;
+            --bg-card: #141416;
+            --bg-active: #1e1e22;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(59, 130, 246, 0.3);
+            --accent-safir: #2563eb;
+            --accent-safir-glow: rgba(37, 99, 235, 0.15);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --transition-smooth: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
 
         /* Base styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        a { text-decoration: none; color: white; }
-        a:hover { text-decoration: none; color: rgba(255, 255, 255, 0.15); animation: fadeIn 0.5s ease; transition: opacity 0.3s ease, transform 0.3s ease;}
+
+        a { 
+            text-decoration: none; 
+            color: var(--text-primary); 
+            transition: var(--transition-smooth);
+        }
 
         body {
-            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #131314;
-            color: white;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-pure);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
-            overflow-x: hidden; /* Prevent horizontal scroll when offcanvas is open */
+            overflow-x: hidden;
+            height: 100vh;
+            height: -webkit-fill-available; /* Dukungan tinggi layar iOS */
         }
 
-        /* Header */
+        /* Header Premium */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.25rem;
+            padding: 1.25rem 1.5rem;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: #131314;
+            background: rgba(11, 11, 12, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
             z-index: 100;
         }
 
         .menu-icon {
             cursor: pointer;
             padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: var(--transition-smooth);
         }
 
         .menu-icon span {
             display: block;
             width: 20px;
-            height: 2px;
-            background: white;
-            margin: 4px 0;
+            height: 1.5px;
+            background: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+
+        .menu-icon:hover span {
+            background: var(--accent-safir);
+            width: 24px;
         }
 
         .logo {
-            font-size: 1.25rem;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 600;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-safir);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-safir);
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.8rem;
+            font-weight: 700;
             cursor: pointer;
+            transition: var(--transition-smooth);
+            color: var(--text-primary);
+        }
+
+        .avatar:hover {
+            border-color: var(--accent-safir);
+            box-shadow: 0 0 12px var(--accent-safir-glow);
+            transform: translateY(-1px);
         }
 
         /* Main Content */
         .main-content {
-            position: relative;
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            height:auto;
+            padding-top: 80px;
+            padding-bottom: 160px;
+            position: relative;
+            scroll-behavior: auto; /* Diperlukan agar manipulasi scroll JS instan & presisi */
         }
 
-        /* Welcome State */
-        #welcomeText { text-align: center; }
+        /* Welcome State (Premium Aura) */
         .welcome-state {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 80vh;
-            padding: 0.5rem;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            flex: 1;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition-smooth);
         }
 
         .welcome-state.hidden {
-            opacity: 0;
-            transform: translateY(-20px);
-            pointer-events: none;
-            position: absolute;
-            width: 100%;
+            display: none;
         }
 
-.scroll-to-top {
-  z-index: 9999;
-}
-        .gemini-star {
-            width: 48px;
-            height: 48px;
+        .gemini-sparkle {
             margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 25px rgba(37, 99, 235, 0.4));
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.3)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 35px rgba(37, 99, 235, 0.6)); }
         }
 
         .welcome-text {
-            font-size: 1.5rem;
-            color: rgba(255,255,255,0.8);
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            max-width: 480px;
+            line-height: 1.6;
+            letter-spacing: -0.2px;
         }
 
-        /* Chat State */
+        /* Chat Container */
         .chat-container {
-            flex: 1;
-            padding: 1rem;
             display: none;
             flex-direction: column;
-            gap: 1rem;
-            animation: fadeIn 0.5s ease;
+            gap: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .chat-container.active {
             display: flex;
-            max-width: 800px;
-            width: 100%;
-            padding: 10px;
-            padding-top: 80px;
-            padding-bottom: 180px;
-            margin: auto;
-            height: auto;
-            max-height: 80dvh;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* User Message */
+        /* Pesan Pengguna (Minimalis Berpendar) */
         .user-message {
             align-self: flex-end;
-            background: #3c4043;
-            padding: 0.75rem 1rem;
-            border-radius: 1.25rem;
-            max-width: 80%;
-            animation: slideInRight 0.4s ease;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 0.85rem 1.25rem;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 85%;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(15px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        /* AI Response */
+        /* Respon AI (Sangat Halus & Berstruktur) */
         .ai-response {
             display: flex;
             flex-direction: column;
-            padding: 0.75rem 1rem;
-            gap: 0.5rem;
-            animation: fadeInUp 0.5s ease 0.3s both;
+            background: rgba(20, 20, 22, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 1.25rem;
+            gap: 1rem;
+            animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .ai-header {
@@ -208,93 +266,161 @@
         }
 
         .ai-star {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 0 8px var(--accent-safir-glow));
         }
 
         .sound-icon {
-            background: #131314;
+            background: transparent;
             border: none;
-            border-radius: 50%;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 0.5rem;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            padding: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            border: 1px solid transparent;
         }
 
         .sound-icon:hover {
-            opacity: 1;
+            background: var(--bg-active);
+            border-color: var(--border-subtle);
+        }
+
+        .sound-icon svg {
+            fill: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .sound-icon:hover svg {
+            fill: var(--accent-safir);
         }
 
         .ai-text {
-            font-size: 1rem;
-            line-height: 1.5;
-            white-space: pre-wrap; /* Ensure pre-formatted text wraps */
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            word-wrap: break-word;
+        }
+
+        /* Markdown Styles di AI Text */
+        .ai-text p {
+            margin-bottom: 0.8rem;
+        }
+        .ai-text p:last-child {
+            margin-bottom: 0;
+        }
+        .ai-text ul, .ai-text ol {
+            margin-left: 1.25rem;
+            margin-bottom: 0.8rem;
+        }
+        .ai-text li {
+            margin-bottom: 0.3rem;
         }
 
         .ai-text pre {
             position: relative;
-            background-color: #1e1f20;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 1.5rem 1rem 1rem 1rem;
-            margin-top: 0.5rem;
-            overflow-x: hidden;
-            white-space: pre-wrap;
-            white-space: -moz-pre-wrap;
-            white-space: -pre-wrap;
-            white-space: -o-pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Fira Code', 'Courier New', monospace;
+            background: #080809;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 2.75rem 1rem 1rem 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
         }
 
+        .ai-text code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+
+        .ai-text pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            display: block;
+        }
+
+        /* Tombol Salin Premium */
         .copy-btn {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 5px;
+            top: 0.6rem;
+            right: 0.6rem;
+            background: #141416;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            transition: opacity 0.2s, background-color 0.2s;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 6px;
         }
 
         .copy-btn:hover {
-            opacity: 1;
-            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-safir);
+            color: var(--text-primary);
+            background: var(--bg-active);
         }
 
         .copy-btn svg {
-            fill: white;
+            fill: var(--text-secondary);
+            width: 14px;
+            height: 14px;
+            transition: var(--transition-smooth);
         }
 
-        /* Action Buttons for AI response */
+        .copy-btn:hover svg {
+            fill: var(--accent-safir);
+        }
+
+        /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
             align-items: center;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 0.75rem;
             margin-top: 0.5rem;
         }
 
         .action-btn {
             background: transparent;
-            border: none;
+            border: 1px solid transparent;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 0.5rem;
-            opacity: 0.6;
-            transition: opacity 0.2s, transform 0.2s;
+            padding: 0.45rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
         }
 
         .action-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
+            background: var(--bg-active);
+            border-color: var(--border-subtle);
+        }
+
+        .action-btn svg {
+            fill: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .action-btn:hover svg {
+            fill: var(--text-primary);
+        }
+
+        .action-btn.active svg {
+            fill: var(--accent-safir);
         }
 
         .more-btn {
@@ -304,41 +430,81 @@
         /* Disclaimer */
         .disclaimer {
             text-align: center;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.5);
-            margin-top: 1rem;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
         }
 
-        /* Input Area */
+        /* Tombol Scroll to Top Melayang */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 120px;
+            right: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: var(--transition-smooth);
+            z-index: 80;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .scroll-to-top:hover {
+            border-color: var(--accent-safir);
+            color: var(--text-primary);
+            box-shadow: 0 0 15px var(--accent-safir-glow);
+            transform: translateY(-2px);
+        }
+
+        .scroll-to-top svg {
+            fill: currentColor;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Input Area Premium Floating */
         .input-area {
-            max-width: 500px;
-            width: 100%;
-            margin: auto;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: #131314;
-            padding: 1rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .input-area.chat-mode-active { /* Changed class name to avoid conflict with chat-mode from previous snippet */
-            background: #1e1f20;
-            border-top-right-radius: 1.5rem;
-            border-top-left-radius: 1.5rem;
+            background: linear-gradient(to top, var(--bg-pure) 70%, transparent 100%);
+            padding: 1.5rem 1rem 2rem 1rem;
+            z-index: 90;
         }
 
         .input-wrapper {
-            background: #1e1f20;
-            border-radius: 1.5rem;
-            padding: 1rem 1.25rem;
-            transition: all 0.3s ease;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 1px 1px rgba(255,255,255,0.02);
+            transition: var(--transition-smooth);
         }
 
-        .input-area.chat-mode-active .input-wrapper {
-            background: transparent;
-            padding: 0.5rem 0;
+        .input-wrapper:focus-within {
+            border-color: var(--accent-safir);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-safir-glow);
         }
 
         .input-field {
@@ -351,33 +517,29 @@
             flex: 1;
             background: transparent;
             border: none;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            resize: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
             height: 40px;
             line-height: 1.5;
         }
 
         input::placeholder {
-            color: rgba(255,255,255,0.5);
+            color: var(--text-muted);
         }
 
         .input-actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 0.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .input-area.chat-mode-active .input-actions {
             margin-top: 0.5rem;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 0.5rem;
         }
 
         .left-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .action-icon {
@@ -385,12 +547,24 @@
             border: none;
             cursor: pointer;
             padding: 0.5rem;
-            opacity: 0.7;
-            transition: all 0.2s;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
         }
 
         .action-icon:hover {
-            opacity: 1;
+            background: var(--bg-active);
+        }
+
+        .action-icon svg {
+            fill: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .action-icon:hover svg {
+            fill: var(--accent-safir);
         }
 
         .right-actions {
@@ -399,91 +573,74 @@
             align-items: center;
         }
 
+        /* Tombol Pilihan AI Premium */
         .cepat-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 1.5rem;
+            background: var(--bg-active);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 0.4rem 0.85rem;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
         }
 
         .cepat-btn:hover {
-            background: rgba(255,255,255,0.15);
+            border-color: var(--accent-safir);
+            box-shadow: 0 0 10px var(--accent-safir-glow);
         }
 
-        .mic-btn, .wave-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .mic-btn:hover, .wave-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
+        /* Tombol Kirim Mewah */
         .send-btn {
-            background: #4285f4;
+            background: var(--accent-safir);
             border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
-            transform: scale(1);
-        }
-
-        .send-btn.visible {
-            opacity: 1;
-            transform: scale(1);
+            transition: var(--transition-smooth);
         }
 
         .send-btn:hover {
-            background: #5a95f5;
+            background: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+            transform: scale(1.05);
         }
 
-        /* Typing Animation */
+        .send-btn svg {
+            fill: white;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Typing Indicator Halus */
         .typing-indicator {
             display: flex;
-            gap: 4px;
-            padding: 0.5rem 0;
+            gap: 5px;
+            padding: 0.25rem 0.5rem;
+            align-items: center;
         }
 
         .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: #4285f4;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-safir);
             border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+            animation: bounce 1.2s infinite ease-in-out;
         }
 
         .typing-indicator span:nth-child(1) { animation-delay: 0s; }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
 
         @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+            40% { transform: translateY(-5px); opacity: 1; }
         }
-
-        /* SVG Icons */
-        svg {
-            fill: white;
-        }
-
-        /* --- Custom Styles for Action Sheets and Offcanvas --- */
 
         /* Overlay */
         .overlay {
@@ -492,11 +649,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(5, 5, 6, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 200;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: var(--transition-smooth);
         }
 
         .overlay.active {
@@ -504,80 +663,101 @@
             visibility: visible;
         }
 
-        /* Action Sheet Base */
+        /* Action Sheet Bottom Premium */
         .action-sheet {
             position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
+            left: 50%;
+            transform: translate(-50%, 100%);
             max-width: 500px;
-            margin: 0 auto;
             width: 100%;
-            max-height: 80%;
-            background: #1e1f20;
-            border-top-left-radius: 1rem;
-            border-top-right-radius: 1rem;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle);
+            border-left: 1px solid var(--border-subtle);
+            border-right: 1px solid var(--border-subtle);
+            border-radius: 24px 24px 0 0;
             z-index: 300;
-            transform: translateY(100%);
-            transition: transform 0.3s ease-out;
-            padding: 1rem;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            overflow-y: auto;
+            gap: 0.5rem;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
 
         .action-sheet.active {
-            transform: translateY(0);
+            transform: translate(-50%, 0);
+        }
+
+        .action-sheet::before {
+            content: '';
+            width: 40px;
+            height: 4px;
+            background: var(--border-subtle);
+            border-radius: 999px;
+            align-self: center;
+            margin-bottom: 1rem;
         }
 
         .action-sheet-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
             text-align: center;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
         }
 
         .action-sheet button {
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
+            background: rgba(255,255,255,0.02);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
             text-align: left;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s ease;
+            font-size: 0.92rem;
+            font-family: inherit;
+            font-weight: 500;
+            transition: var(--transition-smooth);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .action-sheet button:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--bg-active);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
         }
 
         .action-sheet button.selected {
-            background: #4285f4;
+            background: var(--accent-safir-glow);
+            border-color: var(--accent-safir);
+            color: var(--text-primary);
+        }
+
+        .selected-indicator {
+            color: var(--accent-safir);
             font-weight: bold;
         }
 
-        /* Offcanvas for Chat History */
+        /* Offcanvas Samping untuk Riwayat Chat */
         .offcanvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 70%; /* Adjust as needed */
-            max-width: 300px;
+            width: 80%;
+            max-width: 320px;
             height: 100%;
-            background: #1e1f20;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-subtle);
             z-index: 300;
             transform: translateX(-100%);
-            transition: transform 0.3s ease-out;
-            padding: 1rem;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
+            box-shadow: 10px 0 40px rgba(0,0,0,0.5);
         }
 
         .offcanvas.active {
@@ -588,99 +768,222 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .offcanvas-title {
-            font-size: 1.2rem;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .offcanvas-close-btn {
             background: none;
             border: none;
-            color: white;
+            color: var(--text-secondary);
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+        }
+
+        .offcanvas-close-btn:hover {
+            background: var(--bg-active);
+            color: var(--text-primary);
         }
 
         .offcanvas-content {
             flex: 1;
             overflow-y: auto;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .offcanvas-chat-item {
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: none;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
             padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
+            border-radius: 12px;
             text-align: left;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s ease;
-            margin-bottom: 0.5rem;
+            font-size: 0.88rem;
+            font-family: inherit;
+            transition: var(--transition-smooth);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .offcanvas-chat-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--bg-active);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .offcanvas-chat-item.active-chat {
+            background: var(--accent-safir-glow);
+            border-color: var(--accent-safir);
+            color: var(--text-primary);
         }
 
         .history-title-span {
-            flex-grow: 1;
+            flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            pointer-events: none; /* Make clicks pass through to parent button */
+            pointer-events: none;
         }
 
         .delete-chat-icon {
-            margin-left: 1rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 50%;
-            font-weight: bold;
-            font-size: 1.2rem;
-            line-height: 1;
-            opacity: 0.7;
-            transition: all 0.2s;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: var(--transition-smooth);
+            opacity: 0.6;
         }
 
         .delete-chat-icon:hover {
-            background-color: rgba(255,255,255,0.2);
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
             opacity: 1;
-            transform: scale(1.1);
         }
 
-        button.new-chat-btn, #newChatBtn {
-            background: #4285f4;
+        /* Tombol New Chat di Panel */
+        .new-chat-btn {
+            background: var(--accent-safir);
             color: white;
-            cursor: pointer;
-            margin-top: 1rem;
-            font-weight: bold;
             border: none;
-            padding: 8px;
-            width: fit-content;
-            border-radius: 5px;
-            box-shadow: 1px 2px 9px -2px rgba(0, 0, 0, 0.6);
-        }
-        button.new-chat-btn:hover, #newChatBtn:hover {
-            background: #5a95f5;
-        }
-        .offcanvas-content button.active-chat {
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+            padding: 0.85rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+            text-align: center;
+            box-shadow: 0 4px 12px var(--accent-safir-glow);
         }
 
-        .endpoint-url {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 1rem;
+        .new-chat-btn:hover {
+            background: #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* --- Sistem Global Custom Alert --- */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 5, 6, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+        }
+
+        .custom-alert-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-alert-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 1.75rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
             text-align: center;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.6);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .custom-alert-overlay.active .custom-alert-box {
+            transform: scale(1);
+        }
+
+        .custom-alert-box h3 { 
+            margin-bottom: 0.75rem; 
+            color: var(--text-primary); 
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .custom-alert-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-alert-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .custom-alert-btn {
+            padding: 0.65rem 1.25rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .custom-alert-btn.confirm-yes {
+            background: var(--accent-safir);
+            border-color: var(--accent-safir);
+            color: white;
+        }
+
+        .custom-alert-btn.confirm-yes:hover {
+            background: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .custom-alert-btn.confirm-no {
+            background: var(--bg-active);
+            color: var(--text-secondary);
+        }
+
+        .custom-alert-btn.confirm-no:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        /* Desktop Optimization */
+        @media (min-width: 768px) {
+            .header {
+                padding: 1.25rem 4rem;
+            }
+            .chat-container {
+                padding: 0 2rem;
+            }
+            .offcanvas {
+                width: 320px;
+            }
         }
     </style>
 </head>
@@ -697,14 +1000,14 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
         <!-- Welcome State -->
         <div class="welcome-state" id="welcomeState">
-            <svg class="gemini-sparkle" viewBox="0 0 24 24" width="60" height="60">
+            <svg class="gemini-sparkle" viewBox="0 0 24 24" width="64" height="64">
                 <defs>
                     <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#4285f4"/>
-                        <stop offset="100%" style="stop-color:#34a853"/>
+                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                        <stop offset="100%" style="stop-color:#1d4ed8"/>
                     </linearGradient>
                 </defs>
                 <path fill="url(#sparkleGradient)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
@@ -718,23 +1021,30 @@
         <div class="chat-container" id="chatContainer"></div>
     </main>
 
+    <!-- Scroll to Top Button (Melayang) -->
+    <button class="scroll-to-top" id="scrollToTopBtn" aria-label="Kembali ke Atas">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+        </svg>
+    </button>
+
     <!-- Input Area -->
     <div class="input-area" id="inputArea">
         <div class="input-wrapper">
             <div class="input-field">
-                <input type="text" placeholder="Silahkan Minta Apapun" id="messageInput">
+                <input type="text" placeholder="Silahkan Minta Apapun" id="messageInput" autocomplete="off">
             </div>
             <div class="input-actions">
                 <div class="left-actions">
-                    <button class="action-icon" id="settingsBtn">
+                    <button class="action-icon" id="settingsBtn" aria-label="Mode Chat">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
                         </svg>
                     </button>
                 </div>
                 <div class="right-actions">
-                    <button class="cepat-btn" id="modelAiBtn">Qwen</button>
-                    <button class="send-btn" id="sendBtn">
+                    <button class="cepat-btn" id="modelAiBtn">Llama 3-2</button>
+                    <button class="send-btn" id="sendBtn" aria-label="Kirim">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                         </svg>
@@ -792,10 +1102,9 @@
             <button class="offcanvas-close-btn" id="closeOffcanvasBtn">&times;</button>
         </div>
         <div class="offcanvas-content" id="offcanvasChatHistoryContent">
-            <!-- Chat history items will be dynamically added here -->
-            <p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>
+            <!-- Dynamic elements will be inserted here -->
         </div>
-        <button class="btn new-chat-btn" id="newChatBtn">New Chat</button>
+        <button class="new-chat-btn" id="newChatBtn">Mulai Chat Baru</button>
     </div>
 
     <!-- Load required libraries -->
@@ -808,9 +1117,10 @@
         const sendBtn = document.getElementById('sendBtn');
         const welcomeState = document.getElementById('welcomeState');
         const chatContainer = document.getElementById('chatContainer');
-        const mainContent = document.querySelector('.main-content');
+        const mainContent = document.getElementById('mainContent');
         const inputArea = document.getElementById('inputArea');
         const settingStatus = document.getElementById('setting-status');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
         const overlay = document.getElementById('overlay');
         const modelAiBtn = document.getElementById('modelAiBtn');
@@ -832,27 +1142,101 @@
         let currentMode = 'chat';
         let currentModel = '@cf/meta/llama-3.2-3b-instruct';
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadAllChats();
-    updateModelButtonText();
-    updateSettingStatus();
-    highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
-    highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
-    updateMessageInputPlaceholder();
-    updateWelcomeText();
-});
+        // --- SISTEM GLOBAL CUSTOM DIALOG ---
+        function showGlobalAlert(title, message) {
+            return new Promise((resolve) => {
+                const existing = document.getElementById('global-custom-dialog');
+                if (existing) existing.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'global-custom-dialog';
+                overlay.className = 'custom-alert-overlay';
+                overlay.innerHTML = `
+                    <div class="custom-alert-box">
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <div class="custom-alert-actions">
+                            <button class="custom-alert-btn confirm-yes" id="custom-alert-close">Tutup</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                // For animate
+                setTimeout(() => overlay.classList.add('active'), 10);
+
+                document.getElementById('custom-alert-close').addEventListener('click', () => {
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        overlay.remove();
+                        resolve(true);
+                    }, 300);
+                });
+            });
+        }
+
+        function showGlobalConfirm(title, message) {
+            return new Promise((resolve) => {
+                const existing = document.getElementById('global-custom-dialog');
+                if (existing) existing.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'global-custom-dialog';
+                overlay.className = 'custom-alert-overlay';
+                overlay.innerHTML = `
+                    <div class="custom-alert-box">
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <div class="custom-alert-actions">
+                            <button class="custom-alert-btn confirm-no" id="custom-confirm-no">Batal</button>
+                            <button class="custom-alert-btn confirm-yes" id="custom-confirm-yes">Ya, Hapus</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                setTimeout(() => overlay.classList.add('active'), 10);
+
+                document.getElementById('custom-confirm-no').addEventListener('click', () => {
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        overlay.remove();
+                        resolve(false);
+                    }, 300);
+                });
+
+                document.getElementById('custom-confirm-yes').addEventListener('click', () => {
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        overlay.remove();
+                        resolve(true);
+                    }, 300);
+                });
+            });
+        }
+
+        // --- LOAD DAN GRUP INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllChats();
+            updateModelButtonText();
+            updateSettingStatus();
+            highlightSelectedOption(modelAiActionSheet, 'model', currentModel);
+            highlightSelectedOption(settingsActionSheet, 'mode', currentMode);
+            updateMessageInputPlaceholder();
+            updateWelcomeText();
+        });
         
-function updateWelcomeText() {
-    let welcomeMessage = "Apa yang bisa saya bantu?";
-    if (currentMode === 'analyze-repo') {
-        welcomeMessage = "Berikan URL repo kamu untuk dianalisis! \n (e.g., https://github.com/owner/repo)";
-    } else if (currentMode === 'generate-code') {
-        welcomeMessage = "Berikan persyaratan kamu untuk generate kode!";
-    } else if (currentMode === 'fix-error') {
-        welcomeMessage = "\nCODE_START\n<kode Anda>\nCODE_END\nERROR_START\n<pesan error Anda>\nERROR_END";
-    }
-    welcomeTextEl.textContent = welcomeMessage;
-}
+        function updateWelcomeText() {
+            let welcomeMessage = "Apa yang bisa saya bantu hari ini?";
+            if (currentMode === 'analyze-repo') {
+                welcomeMessage = "Berikan URL repository Anda untuk dianalisis secara mendalam.\n(Contoh: https://github.com/owner/repo)";
+            } else if (currentMode === 'generate-code') {
+                welcomeMessage = "Tuliskan spesifikasi aplikasi atau modul yang ingin Anda buat kodenya.";
+            } else if (currentMode === 'fix-error') {
+                welcomeMessage = "Gunakan format berikut untuk mulai memperbaiki masalah kode:\n\nCODE_START\n[kode Anda]\nCODE_END\n\nERROR_START\n[pesan error Anda]\nERROR_END";
+            }
+            welcomeTextEl.innerText = welcomeMessage;
+        }
 
         function generateUniqueId() {
             return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
@@ -892,7 +1276,7 @@ function updateWelcomeText() {
 
         function startNewChat(mode = 'chat') {
             currentChatId = generateUniqueId();
-            currentChatTitle = `Obrolan\n(${new Date().toLocaleString()})`;
+            currentChatTitle = `Obrolan Baru (${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`;
             currentMode = mode;
             updateModelBasedOnMode();
 
@@ -940,15 +1324,10 @@ function updateWelcomeText() {
             if (chatToLoad.messages.length > 0) {
                 welcomeState.classList.add('hidden');
                 chatContainer.classList.add('active');
-                inputArea.classList.add('chat-mode-active');
-                const lastMessageEl = chatContainer.lastElementChild;
-                if (lastMessageEl) {
-                    lastMessageEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                }
+                scrollToBottom(true); // Langsung scroll tanpa animasi saat memuat obrolan
             } else {
                 welcomeState.classList.remove('hidden');
                 chatContainer.classList.remove('active');
-                inputArea.classList.remove('chat-mode-active');
             }
 
             updateSettingStatus();
@@ -963,7 +1342,6 @@ function updateWelcomeText() {
             chatContainer.innerHTML = '';
             welcomeState.classList.remove('hidden');
             chatContainer.classList.remove('active');
-            inputArea.classList.remove('chat-mode-active');
         }
 
         function displayUserMessage(message) {
@@ -976,65 +1354,79 @@ function updateWelcomeText() {
         function displayAIMessage(message) {
             const aiResponseEl = document.createElement('div');
             aiResponseEl.className = 'ai-response';
+            
+            // Konfigurasi marked agar aman dan mendukung struktur yang baik
             const renderedHtml = DOMPurify.sanitize(marked.parse(message));
+            
             aiResponseEl.innerHTML = `
                 <div class="ai-header">
-                    <svg class="ai-star" viewBox="0 0 24 24">
+                    <svg class="ai-star" viewBox="0 0 24 24" width="22" height="22">
                         <defs>
-                            <linearGradient id="starGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#4285f4"/>
-                                <stop offset="100%" style="stop-color:#34a853"/>
-                        </linearGradient>
+                            <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6"/>
+                                <stop offset="100%" style="stop-color:#1d4ed8"/>
+                            </linearGradient>
                         </defs>
-                        <path fill="url(#starGrad2)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
+                        <path fill="url(#starGrad)" d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/>
                     </svg>
-                    <button class="sound-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
+                    <button class="sound-icon" aria-label="Dengarkan Suara">
+                        <svg width="18" height="18" viewBox="0 0 24 24">
                             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                         </svg>
                     </button>
                 </div>
                 <div class="ai-text">${renderedHtml}</div>
                 <div class="action-buttons">
-                    <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
-                    <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></button>
-                    <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-                    <button class="action-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
-                    <button class="action-btn more-btn"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+                    <button class="action-btn" aria-label="Suka"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
+                    <button class="action-btn" aria-label="Tidak Suka"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></button>
+                    <button class="action-btn share-btn" aria-label="Bagikan"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg></button>
+                    <button class="action-btn more-btn" aria-label="Lainnya"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
                 </div>
-                <p class="disclaimer">AI dapat membuat kesalahan, jadi periksa kembali responsnya</p>
+                <p class="disclaimer">AI dapat melakukan kesalahan informasi, harap pertimbangkan untuk melakukan verifikasi ulang.</p>
             `;
             chatContainer.appendChild(aiResponseEl);
 
-            // Add copy buttons to code blocks
+            // Menambahkan aksi salin kustom yang andal di dalam iframe
             aiResponseEl.querySelectorAll('pre').forEach(pre => {
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
-                copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> <span>Salin</span>';
                 pre.appendChild(copyBtn);
 
                 copyBtn.addEventListener('click', () => {
-                    const code = pre.querySelector('code');
-                    if (navigator.clipboard && code) {
-                        navigator.clipboard.writeText(code.textContent).then(() => {
-                            copyBtn.textContent = '✓';
-                            setTimeout(() => {
-                                copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
-                            }, 2000);
-                        }).catch(err => {
-                            console.error('Failed to copy text: ', err);
-                        });
+                    const code = pre.querySelector('code') || pre;
+                    const textToCopy = code.innerText.replace(/Salin\s*$/, '').trim();
+                    
+                    // Metode Salin Fallback Kompatibel Iframe
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        copyBtn.innerHTML = '<span>Disalin ✓</span>';
+                        copyBtn.style.borderColor = 'var(--accent-safir)';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> <span>Salin</span>';
+                            copyBtn.style.borderColor = '';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Tidak dapat menyalin kode', err);
+                    } finally {
+                        document.body.removeChild(textarea);
                     }
                 });
             });
         }
 
-
         function renderChatHistoryList() {
             offcanvasChatHistoryContent.innerHTML = '';
 
             if (allChats.length === 0) {
-                offcanvasChatHistoryContent.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">Belum ada riwayat chat.</p>';
+                offcanvasChatHistoryContent.innerHTML = '<p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 2rem;">Belum ada riwayat obrolan.</p>';
                 return;
             }
 
@@ -1069,10 +1461,9 @@ function updateWelcomeText() {
             });
         }
 
-        function handleDeleteChat(chatIdToDelete) {
-            if (!confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
-                return;
-            }
+        async function handleDeleteChat(chatIdToDelete) {
+            const confirmed = await showGlobalConfirm('Hapus Obrolan', 'Apakah Anda yakin ingin menghapus permanen riwayat percakapan ini?');
+            if (!confirmed) return;
 
             allChats = allChats.filter(chat => chat.id !== chatIdToDelete);
 
@@ -1091,8 +1482,8 @@ function updateWelcomeText() {
         function updateModelButtonText() {
             let shortName = currentModel;
 
-            if (currentModel.includes('meta/llama-3.2-3b-instruct')) {
-                shortName = 'Llama 3-2';
+            if (currentModel.includes('meta/llama-3.1') || currentModel.includes('meta/llama-3.2')) {
+                shortName = 'Llama';
             } else if (currentModel.includes('qwen2.5-coder-32b')) {
                 shortName = 'Qwen';
             } else if (currentModel.includes('deepseek-r1-distill-qwen-32b')) {
@@ -1105,7 +1496,7 @@ function updateWelcomeText() {
         }
 
         function updateSettingStatus() {
-            settingStatus.textContent = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + '';
+            settingStatus.textContent = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         }
 
         function updateModelBasedOnMode() {
@@ -1153,12 +1544,12 @@ function updateWelcomeText() {
         overlay.addEventListener('click', closeOverlay);
 
         modelAiBtn.addEventListener('click', () => {
-            const modelName = currentModel.includes('llama-3.2') ? 'Llama 3.2' :
-                             currentModel.includes('qwen2.5-coder-32b') ? 'Qwen' :
-                             currentModel.includes('deepseek-r1-distill-qwen-32b') ? 'Deepseek' :
+            const modelName = currentModel.includes('llama') ? 'Llama' :
+                             currentModel.includes('qwen') ? 'Qwen' :
+                             currentModel.includes('deepseek') ? 'Deepseek' :
                              currentModel.split('/').pop();
             const modeName = currentMode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            alert(`Currently using ${modelName} model for ${modeName} mode. Model selection is now automatic based on the mode.`);
+            showGlobalAlert('Informasi Model', `Saat ini menggunakan model ${modelName} untuk mode ${modeName}. Pemilihan model dioptimalkan secara otomatis berdasarkan preferensi mode kerja.`);
         });
 
         settingsBtn.addEventListener('click', () => {
@@ -1195,13 +1586,13 @@ function updateWelcomeText() {
         });
 
         function updateMessageInputPlaceholder() {
-            let placeholderText = "Silahkan Minta Apapun";
+            let placeholderText = "Tuliskan apa saja...";
             if (currentMode === 'analyze-repo') {
-                placeholderText = "Masukkan URL repo";
+                placeholderText = "Tempelkan tautan URL repositori di sini...";
             } else if (currentMode === 'generate-code') {
-                placeholderText = "Tuliskan persyaratan";
+                placeholderText = "Rincikan aplikasi yang ingin dibuat...";
             } else if (currentMode === 'fix-error') {
-                placeholderText = "Masukkan kode dan error dalam format";
+                placeholderText = "Masukkan kode & error Anda sesuai format...";
             }
             messageInput.placeholder = placeholderText;
         }
@@ -1214,20 +1605,59 @@ function updateWelcomeText() {
 
         sendBtn.addEventListener('click', sendMessage);
 
+        // --- Fungsi Auto-Scroll Premium ---
+        // Parameter 'instant' opsional jika ingin scroll tanpa efek transisi (misal saat buka chat history)
+        function scrollToBottom(instant = false) {
+            if (instant) {
+                mainContent.scrollTop = mainContent.scrollHeight;
+                return;
+            }
+
+            // Gunakan requestAnimationFrame agar browser selesai merender DOM baru sebelum dihitung
+            requestAnimationFrame(() => {
+                mainContent.scrollTo({
+                    top: mainContent.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // --- Event Listener Scroll To Top ---
+        mainContent.addEventListener('scroll', () => {
+            if (mainContent.scrollTop > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            mainContent.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Deteksi tinggi layout berubah pada mobile saat keyboard muncul
+        window.addEventListener('resize', () => {
+            if (document.activeElement.tagName === 'INPUT') {
+                scrollToBottom(true);
+            }
+        });
+
         async function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
 
             const currentChat = findCurrentChat();
             if (!currentChat) {
-                console.error("No active chat found.");
+                console.error("Tidak ada obrolan aktif ditemukan.");
                 return;
             }
 
             if (currentChat.messages.length === 0) {
                 welcomeState.classList.add('hidden');
                 chatContainer.classList.add('active');
-                inputArea.classList.add('chat-mode-active');
             }
 
             displayUserMessage(message);
@@ -1235,21 +1665,21 @@ function updateWelcomeText() {
             saveAllChats();
 
             messageInput.value = '';
+            scrollToBottom();
 
+            // Elemen Indikator Mengetik AI
             const typingEl = document.createElement('div');
             typingEl.className = 'ai-response';
             typingEl.innerHTML = `
                 <div class="ai-header">
-                    <svg class="gemini-sparkle" viewBox="0 0 24 24" width="24" height="24">
+                    <svg class="gemini-sparkle" viewBox="0 0 24 24" width="22" height="22">
                         <defs>
-                            <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#4285f4"/>
-                                <stop offset="100%" style="stop-color:#34a853"/>
+                            <linearGradient id="sparkleGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6"/>
+                                <stop offset="100%" style="stop-color:#1d4ed8"/>
                             </linearGradient>
                         </defs>
-                        <path fill="url(#sparkleGradient)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
-                        <path fill="url(#sparkleGradient)" d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"/>
-                        <path fill="url(#sparkleGradient)" d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"/>
+                        <path fill="url(#sparkleGradient2)" d="M12 0L13.5 8.5L22 10L13.5 11.5L12 20L10.5 11.5L2 10L10.5 8.5L12 0Z"/>
                     </svg>
                 </div>
                 <div class="typing-indicator">
@@ -1259,8 +1689,7 @@ function updateWelcomeText() {
                 </div>
             `;
             chatContainer.appendChild(typingEl);
-            typingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
-
+            scrollToBottom();
 
             try {
                 let requestBody = {};
@@ -1314,31 +1743,31 @@ function updateWelcomeText() {
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Terjadi kesalahan pada backend.');
+                    throw new Error(data.error || 'Terjadi kegagalan komunikasi pada sistem cerdas.');
                 }
 
                 let aiResponseText = '';
                 if (currentMode === 'chat') {
                     aiResponseText = data.response;
                 } else if (currentMode === 'analyze-repo') {
-                    aiResponseText = `**Analisis Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
+                    aiResponseText = `### Analisis Repository:\n**${data.repository?.full_name || 'Tidak Diketahui'}**\n\n${data.analysis}`;
                 } else if (currentMode === 'generate-code') {
                     if (data.code) {
                         const fullCodeResponse = data.code;
-                        const codeBlockMatch = fullCodeResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
+                        const codeBlockMatch = fullCodeResponse.match(/\`\`\`(?:[a-zA-Z]+)?\n([\s\S]*?)\n\`\`\`/);
 
                         if (codeBlockMatch) {
                             const extractedCode = codeBlockMatch[1];
-                            const languageMatch = fullCodeResponse.match(/```([a-zA-Z]+)/);
+                            const languageMatch = fullCodeResponse.match(/\`\`\`([a-zA-Z]+)/);
                             const language = languageMatch ? languageMatch[1] : (data.language || 'javascript');
 
-                            const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
+                            const codeBlockPattern = /\`\`\`(?:[a-zA-Z]+)?\n[\s\S]*?\n\`\`\`/;
                             const matchResult = fullCodeResponse.match(codeBlockPattern);
                             if (matchResult) {
                                 const codeBlockEndIndex = fullCodeResponse.indexOf(matchResult[0]) + matchResult[0].length;
                                 const remainingText = fullCodeResponse.substring(codeBlockEndIndex).trim();
 
-                                aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
+                                aiResponseText = '**Kode Berhasil Dihasilkan:**\n\n\`\`\`' + language + '\n' + extractedCode + '\n\`\`\`\n\n**Deskripsi & Analisis:**\n' + remainingText;
                             } else {
                                 aiResponseText = fullCodeResponse;
                             }
@@ -1347,20 +1776,20 @@ function updateWelcomeText() {
                         }
                     } else if (data.response) {
                         const fullResponse = data.response;
-                        const codeBlockMatch = fullResponse.match(/```(?:[a-zA-Z]+)?\n([\s\S]*?)\n```/);
+                        const codeBlockMatch = fullResponse.match(/\`\`\`(?:[a-zA-Z]+)?\n([\s\S]*?)\n\`\`\`/);
 
                         if (codeBlockMatch) {
                             const extractedCode = codeBlockMatch[1];
-                            const languageMatch = fullResponse.match(/```([a-zA-Z]+)/);
+                            const languageMatch = fullResponse.match(/\`\`\`([a-zA-Z]+)/);
                             const language = languageMatch ? languageMatch[1] : 'javascript';
 
-                            const codeBlockPattern = /```(?:[a-zA-Z]+)?\n[\s\S]*?\n```/;
+                            const codeBlockPattern = /\`\`\`(?:[a-zA-Z]+)?\n[\s\S]*?\n\`\`\`/;
                             const matchResult = fullResponse.match(codeBlockPattern);
                             if (matchResult) {
                                 const codeBlockEndIndex = fullResponse.indexOf(matchResult[0]) + matchResult[0].length;
                                 const remainingText = fullResponse.substring(codeBlockEndIndex).trim();
 
-                                aiResponseText = '**Kode Dihasilkan:**\n\n```' + language + '\n' + extractedCode + '\n```\n\n**Penjelasan:** ' + remainingText;
+                                aiResponseText = '**Kode Berhasil Dihasilkan:**\n\n\`\`\`' + language + '\n' + extractedCode + '\n\`\`\`\n\n**Deskripsi & Analisis:**\n' + remainingText;
                             } else {
                                 aiResponseText = fullResponse;
                             }
@@ -1368,18 +1797,10 @@ function updateWelcomeText() {
                             aiResponseText = fullResponse;
                         }
                     } else {
-                        aiResponseText = 'Tidak ada kode yang dihasilkan.';
+                        aiResponseText = 'Tidak ada output kode yang berhasil dihasilkan oleh model.';
                     }
                 } else if (currentMode === 'fix-error') {
-                    aiResponseText = `**Kode Asli:**\n\n\
-${data.language}
-${data.original_code}
-\
-\n**Kode Diperbaiki:**\n\n\
-${data.language}
-${data.fixed_code}
-\
-\n**Penjelasan Perbaikan:** ${data.fixed_code_explanation || ''}\n\n**Tips Pencegahan:** ${data.prevention_tips || ''}`;
+                    aiResponseText = `### Analisis Pembenahan Kode\n\n**Bahasa Pemrograman:** ${data.language || 'Javascript'}\n\n**Kode Sebelum Perbaikan:**\n\`\`\`${data.language || 'javascript'}\n${data.original_code}\n\`\`\`\n\n**Kode Setelah Diperbaiki:**\n\`\`\`${data.language || 'javascript'}\n${data.fixed_code}\n\`\`\`\n\n**Penjelasan Teknis:**\n${data.fixed_code_explanation || ''}\n\n**Langkah Pencegahan Kedepan:**\n${data.prevention_tips || ''}`;
                 } else {
                     aiResponseText = JSON.stringify(data, null, 2);
                 }
@@ -1388,21 +1809,18 @@ ${data.fixed_code}
                 displayAIMessage(aiResponseText);
                 currentChat.messages.push({ role: 'assistant', content: aiResponseText });
                 saveAllChats();
+                
+                // Pastikan dipicu lagi setelah rendering AI selesai 100%
+                scrollToBottom();
 
-                setTimeout(() => {
-                    chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                }, 100);
             } catch (error) {
                 console.error('Error sending message:', error);
                 typingEl.remove();
-                const errorText = `Error: ${error.message}`;
+                const errorText = `Kesalahan: ${error.message}`;
                 displayAIMessage(errorText);
                 currentChat.messages.push({ role: 'assistant', content: errorText });
                 saveAllChats();
-
-                setTimeout(() => {
-                    chatContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                }, 100);
+                scrollToBottom();
             }
         }
     </script>
