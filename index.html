@@ -41,6 +41,8 @@
             --text-primary: #f4f4f5;
             --text-secondary: #a1a1aa;
             --text-muted: #71717a;
+            --success: #10b981;
+            --danger: #ef4444;
             --transition-smooth: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
@@ -419,8 +421,49 @@
             fill: var(--text-primary);
         }
 
-        .action-btn.active svg {
-            fill: var(--accent-safir);
+        /* Custom Like/Dislike Active States */
+        .action-btn.like-btn.active svg {
+            fill: var(--success);
+            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.3));
+        }
+        .action-btn.dislike-btn.active svg {
+            fill: var(--danger);
+            filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.3));
+        }
+
+        /* Tombol Pemicu Modal Feedback di Dalam Balasan AI */
+        .feedback-trigger-btn {
+            background: var(--bg-active);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .feedback-trigger-btn:hover {
+            border-color: var(--accent-safir);
+            box-shadow: 0 0 10px var(--accent-safir-glow);
+            transform: translateY(-1px);
+        }
+
+        .feedback-trigger-btn svg {
+            fill: currentColor;
+            width: 14px;
+            height: 14px;
+        }
+
+        .feedback-trigger-btn.dislike-theme:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
         }
 
         .more-btn {
@@ -883,7 +926,7 @@
             transform: translateY(-1px);
         }
 
-        /* --- Sistem Global Custom Alert --- */
+        /* --- Sistem Global Custom Alert & Feedback Modal --- */
         .custom-alert-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -971,6 +1014,27 @@
         .custom-alert-btn.confirm-no:hover {
             border-color: var(--border-hover);
             color: var(--text-primary);
+        }
+
+        /* Feedback Modal Textarea */
+        .feedback-textarea {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: none;
+            margin-bottom: 1.25rem;
+            transition: var(--transition-smooth);
+        }
+
+        .feedback-textarea:focus {
+            border-color: var(--accent-safir);
+            box-shadow: 0 0 10px var(--accent-safir-glow);
         }
 
         /* Desktop Optimization */
@@ -1215,6 +1279,52 @@
             });
         }
 
+        // --- SISTEM MODAL FEEDBACK KUSTOM ---
+        function openFeedbackModal(type) {
+            return new Promise((resolve) => {
+                const existing = document.getElementById('global-feedback-modal');
+                if (existing) existing.remove();
+
+                const titleText = type === 'like' ? 'Tulis Testimoni Anda' : 'Kirim Kritik & Saran';
+                const placeholderText = type === 'like' ? 'Tulis pengalaman menyenangkan Anda menggunakan Gem Mini AI di sini...' : 'Tulis kekurangan atau saran perbaikan untuk Gem Mini AI di sini...';
+
+                const modalOverlay = document.createElement('div');
+                modalOverlay.id = 'global-feedback-modal';
+                modalOverlay.className = 'custom-alert-overlay';
+                modalOverlay.innerHTML = `
+                    <div class="custom-alert-box" style="max-width: 440px;">
+                        <h3>${titleText}</h3>
+                        <p style="margin-bottom: 1rem;">Umpan balik Anda sangat berarti bagi pengembangan Gem Mini AI.</p>
+                        <textarea class="feedback-textarea" id="feedbackInputText" placeholder="${placeholderText}"></textarea>
+                        <div class="custom-alert-actions">
+                            <button class="custom-alert-btn confirm-no" id="feedback-cancel-btn">Batal</button>
+                            <button class="custom-alert-btn confirm-yes" id="feedback-submit-btn">Kirim</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modalOverlay);
+
+                setTimeout(() => modalOverlay.classList.add('active'), 10);
+
+                document.getElementById('feedback-cancel-btn').addEventListener('click', () => {
+                    modalOverlay.classList.remove('active');
+                    setTimeout(() => {
+                        modalOverlay.remove();
+                        resolve(null);
+                    }, 300);
+                });
+
+                document.getElementById('feedback-submit-btn').addEventListener('click', () => {
+                    const feedbackVal = document.getElementById('feedbackInputText').value.trim();
+                    modalOverlay.classList.remove('active');
+                    setTimeout(() => {
+                        modalOverlay.remove();
+                        resolve(feedbackVal);
+                    }, 300);
+                });
+            });
+        }
+
         // --- LOAD DAN GRUP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             loadAllChats();
@@ -1312,7 +1422,8 @@
                 if (msg.role === 'user') {
                     displayUserMessage(msg.content);
                 } else if (msg.role === 'assistant') {
-                    displayAIMessage(msg.content);
+                    // Cek jika pesan assistant ini adalah respon otomatis feedback agar disisipkan tombol pemicu kustom
+                    displayAIMessage(msg.content, msg.isFeedbackResponse, msg.feedbackType);
                 }
             });
 
@@ -1351,7 +1462,7 @@
             chatContainer.appendChild(userMsgEl);
         }
 
-        function displayAIMessage(message) {
+        function displayAIMessage(message, isFeedbackResponse = false, feedbackType = '') {
             const aiResponseEl = document.createElement('div');
             aiResponseEl.className = 'ai-response';
             
@@ -1375,16 +1486,96 @@
                         </svg>
                     </button>
                 </div>
-                <div class="ai-text">${renderedHtml}</div>
+                <div class="ai-text">
+                    ${renderedHtml}
+                    <!-- Sisipkan Tombol Modal Feedback khusus jika hanya berupa respon otomatis like/dislike -->
+                    ${isFeedbackResponse ? `
+                        <div>
+                            <button class="feedback-trigger-btn ${feedbackType === 'dislike' ? 'dislike-theme' : ''}" id="trigger-modal-${feedbackType}">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                                </svg>
+                                <span>${feedbackType === 'like' ? 'Tulis Ulasan/Testimoni' : 'Berikan Kritik & Saran'}</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
                 <div class="action-buttons">
-                    <button class="action-btn" aria-label="Suka"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
-                    <button class="action-btn" aria-label="Tidak Suka"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></button>
+                    <button class="action-btn like-btn" aria-label="Suka">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                    </button>
+                    <button class="action-btn dislike-btn" aria-label="Tidak Suka">
+                        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                    </button>
                     <button class="action-btn share-btn" aria-label="Bagikan"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg></button>
                     <button class="action-btn more-btn" aria-label="Lainnya"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
                 </div>
                 <p class="disclaimer">AI dapat melakukan kesalahan informasi, harap pertimbangkan untuk melakukan verifikasi ulang.</p>
             `;
             chatContainer.appendChild(aiResponseEl);
+
+            // Handler ketika tombol pemicu kustom feedback yang disisipkan di dalam teks AI diklik
+            if (isFeedbackResponse) {
+                const triggerBtn = aiResponseEl.querySelector(`#trigger-modal-${feedbackType}`);
+                if (triggerBtn) {
+                    triggerBtn.addEventListener('click', async () => {
+                        const feedbackText = await openFeedbackModal(feedbackType);
+                        if (feedbackText) {
+                            submitFeedbackToWorker(feedbackType, feedbackText);
+                        }
+                    });
+                }
+            }
+
+            // Handler untuk Tombol Like & Dislike Kustom
+            const likeBtn = aiResponseEl.querySelector('.like-btn');
+            const dislikeBtn = aiResponseEl.querySelector('.dislike-btn');
+
+            likeBtn.addEventListener('click', () => {
+                if (likeBtn.classList.contains('active')) return;
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+
+                // AI Merespon Terima Kasih langsung di obrolan & menyisipkan tombol modal feedback
+                const tyMsg = "Terima kasih banyak atas dukungannya! Hehehe. Bolehkah saya meminta ulasan atau testimoni singkat mengenai pengalaman Anda menggunakan Gem Mini?";
+                
+                displayAIMessage(tyMsg, true, 'like');
+                
+                const currentChat = findCurrentChat();
+                if (currentChat) {
+                    currentChat.messages.push({ 
+                        role: 'assistant', 
+                        content: tyMsg, 
+                        isFeedbackResponse: true, 
+                        feedbackType: 'like' 
+                    });
+                    saveAllChats();
+                }
+                scrollToBottom();
+            });
+
+            dislikeBtn.addEventListener('click', () => {
+                if (dislikeBtn.classList.contains('active')) return;
+                dislikeBtn.classList.add('active');
+                likeBtn.classList.remove('active');
+
+                // AI Merespon Maaf & Meminta Saran & menyisipkan tombol modal feedback
+                const sorryMsg = "Maaf ya jika respon saya kurang memuaskan. :( Bisakah Anda memberikan kritik atau saran agar saya bisa berkembang lebih baik lagi?";
+                
+                displayAIMessage(sorryMsg, true, 'dislike');
+                
+                const currentChat = findCurrentChat();
+                if (currentChat) {
+                    currentChat.messages.push({ 
+                        role: 'assistant', 
+                        content: sorryMsg, 
+                        isFeedbackResponse: true, 
+                        feedbackType: 'dislike' 
+                    });
+                    saveAllChats();
+                }
+                scrollToBottom();
+            });
 
             // Menambahkan aksi salin kustom yang andal di dalam iframe
             aiResponseEl.querySelectorAll('pre').forEach(pre => {
@@ -1420,6 +1611,29 @@
                     }
                 });
             });
+        }
+
+        // Kirim feedback ke Worker
+        async function submitFeedbackToWorker(type, text) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type, feedback: text })
+                });
+
+                const resData = await response.json();
+                if (response.ok && resData.success) {
+                    showGlobalAlert('Berhasil', 'Terima kasih banyak atas kontribusi umpan balik Anda yang berharga!');
+                } else {
+                    throw new Error(resData.error || 'Gagal menyimpan.');
+                }
+            } catch (err) {
+                console.error("Gagal mengirim umpan balik:", err);
+                showGlobalAlert('Perhatian', 'Gagal terhubung ke server umpan balik. Umpan balik Anda tetap disimpan secara lokal pada perangkat Anda.');
+            }
         }
 
         function renderChatHistoryList() {
@@ -1530,6 +1744,7 @@
             });
         }
 
+        // Menutup dialog overlay kustom & menu samping
         function openOverlay() {
             overlay.classList.add('active');
         }
@@ -1606,14 +1821,12 @@
         sendBtn.addEventListener('click', sendMessage);
 
         // --- Fungsi Auto-Scroll Premium ---
-        // Parameter 'instant' opsional jika ingin scroll tanpa efek transisi (misal saat buka chat history)
         function scrollToBottom(instant = false) {
             if (instant) {
                 mainContent.scrollTop = mainContent.scrollHeight;
                 return;
             }
 
-            // Gunakan requestAnimationFrame agar browser selesai merender DOM baru sebelum dihitung
             requestAnimationFrame(() => {
                 mainContent.scrollTo({
                     top: mainContent.scrollHeight,
