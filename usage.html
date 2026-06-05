@@ -11,17 +11,19 @@
   <style>
     :root {
       --bg: #09090b;
-      --card: #18181b;
-      --card-hover: #27272a;
-      --border: #27272a;
+      --card: #141416;
+      --card-hover: #1e1e22;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(59, 130, 246, 0.3);
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.15);
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.15);
       --danger: #ef4444;
       --danger-glow: rgba(239, 68, 68, 0.15);
       --success: #10b981;
-      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --success-glow: rgba(16, 185, 129, 0.15);
+      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
@@ -33,7 +35,7 @@
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       padding: 2rem 1rem;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
@@ -106,8 +108,8 @@
     }
 
     .btn-primary:hover {
-      background: #60a5fa;
-      border-color: #60a5fa;
+      background: #3b82f6;
+      border-color: #3b82f6;
     }
 
     /* Banner info */
@@ -142,7 +144,7 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
     .card {
@@ -156,7 +158,7 @@
     }
 
     .card:hover {
-      border-color: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-hover);
     }
 
     .card-title {
@@ -232,6 +234,78 @@
       border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
+    /* Feedback Section Styles */
+    .feedback-section {
+      margin-top: 1rem;
+    }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .feedback-card {
+      background: rgba(20, 20, 22, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: var(--transition);
+    }
+
+    .feedback-card:hover {
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .feedback-card.like {
+      border-left: 3px solid var(--success);
+    }
+
+    .feedback-card.dislike {
+      border-left: 3px solid var(--danger);
+    }
+
+    .feedback-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feedback-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .feedback-badge.like {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .feedback-badge.dislike {
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .feedback-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .feedback-text {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-primary);
+      word-wrap: break-word;
+      font-style: italic;
+    }
+
     /* Custom Dialog Alert */
     .custom-alert-overlay {
       position: fixed;
@@ -290,7 +364,7 @@
     }
 
     .custom-alert-btn:hover {
-      background: #60a5fa;
+      background: #3b82f6;
     }
 
     footer {
@@ -301,13 +375,12 @@
       opacity: 0.6;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
       .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .feedback-grid {
         grid-template-columns: 1fr;
       }
       .big-card {
@@ -377,6 +450,19 @@
         </div>
         <div class="chart-container">
           <canvas id="usageChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Feedback Section (BARU) -->
+      <div class="card big-card feedback-section">
+        <div>
+          <strong style="font-size: 1.05rem;">Umpan Balik & Testimoni Pengguna</strong>
+          <div class="card-desc" style="margin-top: 0.25rem;">Testimoni dan saran dari pengguna Gem Mini AI</div>
+        </div>
+        <div class="feedback-grid" id="feedbackList">
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; grid-column: span 2;">
+            Mengambil data umpan balik...
+          </div>
         </div>
       </div>
     </div>
@@ -467,6 +553,12 @@
       return res.json();
     }
 
+    async function fetchFeedback() {
+      const res = await fetch(API_BASE + "/feedback", { cache: 'no-store' });
+      if (!res.ok) throw new Error('feedback fetch fail');
+      return res.json();
+    }
+
     function renderToday(data) {
       const date = data.date || new Date().toISOString().split('T')[0];
       const neurons = Number(data.neurons_today || 0);
@@ -524,6 +616,48 @@
       usageChart.update();
     }
 
+    function renderFeedback(data) {
+      const fContainer = document.getElementById('feedbackList');
+      const feedbackList = data.feedback || [];
+
+      if (feedbackList.length === 0) {
+        fContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; grid-column: span 2;">
+            Belum ada umpan balik yang masuk.
+          </div>
+        `;
+        return;
+      }
+
+      fContainer.innerHTML = '';
+      feedbackList.forEach(fb => {
+        const isLike = fb.type === 'like';
+        const cardClass = isLike ? 'feedback-card like' : 'feedback-card dislike';
+        const badgeClass = isLike ? 'feedback-badge like' : 'feedback-badge dislike';
+        const badgeText = isLike ? 'Testimoni' : 'Kritik/Saran';
+
+        const card = document.createElement('div');
+        card.className = cardClass;
+        card.innerHTML = `
+          <div class="feedback-meta">
+            <span class="${badgeClass}">${badgeText}</span>
+            <span class="feedback-time">${fb.timestamp || 'Baru saja'}</span>
+          </div>
+          <div class="feedback-text">"${escapeHtml(fb.text)}"</div>
+        `;
+        fContainer.appendChild(card);
+      });
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function setupChart() {
       const ctx = document.getElementById('usageChart').getContext('2d');
       usageChart = new Chart(ctx, {
@@ -561,6 +695,7 @@
       });
     }
 
+    // SIMULASI OFFLINE FALLBACK
     function mockToday() {
       return Promise.resolve({
         date: new Date().toISOString().split('T')[0],
@@ -583,20 +718,32 @@
       });
     }
 
+    function mockFeedback() {
+      return Promise.resolve({
+        feedback: [
+          { id: 'fb-1', type: 'like', text: 'Sistem kodingannya mantap banget, cepat dan kodenya bersih!', timestamp: '6 Jun 2026, 08:30' },
+          { id: 'fb-2', type: 'dislike', text: 'Analisis repository github kadang timeout jika foldernya terlalu besar.', timestamp: '6 Jun 2026, 11:15' },
+          { id: 'fb-3', type: 'like', text: 'Keren bro Daffa, model Llama 3.2 responsif banget buat tanya jawab santai.', timestamp: '5 Jun 2026, 15:45' }
+        ]
+      });
+    }
+
     function fetchAll() {
-      Promise.all([fetchToday(), fetchHistory()])
-        .then(([today, history]) => {
+      Promise.all([fetchToday(), fetchHistory(), fetchFeedback()])
+        .then(([today, history, feedback]) => {
           renderToday(today);
           renderHistory(history);
+          renderFeedback(feedback);
         })
         .catch(e => {
-          console.error("Gagal terhubung dengan Workers API. Menggunakan data simulasi lokasl.", e);
-          Promise.all([mockToday(), mockHistory()])
-            .then(([t, h]) => {
+          console.error("Gagal terhubung dengan Workers API. Menggunakan data simulasi lokal.", e);
+          Promise.all([mockToday(), mockHistory(), mockFeedback()])
+            .then(([t, h, f]) => {
               renderToday(t);
               renderHistory(h);
+              renderFeedback(f);
             });
-          showCustomAlert('Informasi API', 'Gagal memuat status dari Cloudflare Workers. Sistem mendemonstrasikan Dashboard menggunakan simulasi data lokal.');
+          showCustomAlert('Informasi API', 'Gagal memuat status dari Cloudflare Workers secara langsung. Sistem saat ini mensimulasikan data secara lokal agar dashboard tetap interaktif.');
         });
     }
   </script>
