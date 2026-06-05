@@ -163,7 +163,7 @@
             padding-top: 80px;
             padding-bottom: 160px;
             position: relative;
-            scroll-behavior: auto; /* Diperlukan agar manipulasi scroll JS instan & presisi */
+            scroll-behavior: smooth;
         }
 
         /* Welcome State (Premium Aura) */
@@ -1422,7 +1422,6 @@
                 if (msg.role === 'user') {
                     displayUserMessage(msg.content);
                 } else if (msg.role === 'assistant') {
-                    // Cek jika pesan assistant ini adalah respon otomatis feedback agar disisipkan tombol pemicu kustom
                     displayAIMessage(msg.content, msg.isFeedbackResponse, msg.feedbackType);
                 }
             });
@@ -1435,7 +1434,7 @@
             if (chatToLoad.messages.length > 0) {
                 welcomeState.classList.add('hidden');
                 chatContainer.classList.add('active');
-                scrollToBottom(true); // Langsung scroll tanpa animasi saat memuat obrolan
+                scrollToBottom(true); // Langsung gulir instan tanpa efek transisi lambat saat ganti tab chat
             } else {
                 welcomeState.classList.remove('hidden');
                 chatContainer.classList.remove('active');
@@ -1466,7 +1465,6 @@
             const aiResponseEl = document.createElement('div');
             aiResponseEl.className = 'ai-response';
             
-            // Konfigurasi marked agar aman dan mendukung struktur yang baik
             const renderedHtml = DOMPurify.sanitize(marked.parse(message));
             
             aiResponseEl.innerHTML = `
@@ -1488,7 +1486,6 @@
                 </div>
                 <div class="ai-text">
                     ${renderedHtml}
-                    <!-- Sisipkan Tombol Modal Feedback khusus jika hanya berupa respon otomatis like/dislike -->
                     ${isFeedbackResponse ? `
                         <div>
                             <button class="feedback-trigger-btn ${feedbackType === 'dislike' ? 'dislike-theme' : ''}" id="trigger-modal-${feedbackType}">
@@ -1514,7 +1511,6 @@
             `;
             chatContainer.appendChild(aiResponseEl);
 
-            // Handler ketika tombol pemicu kustom feedback yang disisipkan di dalam teks AI diklik
             if (isFeedbackResponse) {
                 const triggerBtn = aiResponseEl.querySelector(`#trigger-modal-${feedbackType}`);
                 if (triggerBtn) {
@@ -1527,7 +1523,6 @@
                 }
             }
 
-            // Handler untuk Tombol Like & Dislike Kustom
             const likeBtn = aiResponseEl.querySelector('.like-btn');
             const dislikeBtn = aiResponseEl.querySelector('.dislike-btn');
 
@@ -1536,7 +1531,6 @@
                 likeBtn.classList.add('active');
                 dislikeBtn.classList.remove('active');
 
-                // AI Merespon Terima Kasih langsung di obrolan & menyisipkan tombol modal feedback
                 const tyMsg = "Terima kasih banyak atas dukungannya! Hehehe. Bolehkah saya meminta ulasan atau testimoni singkat mengenai pengalaman Anda menggunakan Gem Mini?";
                 
                 displayAIMessage(tyMsg, true, 'like');
@@ -1559,7 +1553,6 @@
                 dislikeBtn.classList.add('active');
                 likeBtn.classList.remove('active');
 
-                // AI Merespon Maaf & Meminta Saran & menyisipkan tombol modal feedback
                 const sorryMsg = "Maaf ya jika respon saya kurang memuaskan. :( Bisakah Anda memberikan kritik atau saran agar saya bisa berkembang lebih baik lagi?";
                 
                 displayAIMessage(sorryMsg, true, 'dislike');
@@ -1577,7 +1570,6 @@
                 scrollToBottom();
             });
 
-            // Menambahkan aksi salin kustom yang andal di dalam iframe
             aiResponseEl.querySelectorAll('pre').forEach(pre => {
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
@@ -1588,7 +1580,6 @@
                     const code = pre.querySelector('code') || pre;
                     const textToCopy = code.innerText.replace(/Salin\s*$/, '').trim();
                     
-                    // Metode Salin Fallback Kompatibel Iframe
                     const textarea = document.createElement('textarea');
                     textarea.value = textToCopy;
                     textarea.style.position = 'fixed';
@@ -1613,7 +1604,6 @@
             });
         }
 
-        // Kirim feedback ke Worker
         async function submitFeedbackToWorker(type, text) {
             try {
                 const response = await fetch(`${BACKEND_URL}/feedback`, {
@@ -1693,6 +1683,7 @@
             }
         }
 
+        // Memperbarui visual nama model AI pendek
         function updateModelButtonText() {
             let shortName = currentModel;
 
@@ -1744,7 +1735,6 @@
             });
         }
 
-        // Menutup dialog overlay kustom & menu samping
         function openOverlay() {
             overlay.classList.add('active');
         }
@@ -1820,19 +1810,34 @@
 
         sendBtn.addEventListener('click', sendMessage);
 
-        // --- Fungsi Auto-Scroll Premium ---
+        // --- SISTEM AUTO-SCROLL PREMIUM (DIJAMIN 100% GULIR OTOMATIS) ---
         function scrollToBottom(instant = false) {
+            const scrollHeight = mainContent.scrollHeight;
+            
             if (instant) {
-                mainContent.scrollTop = mainContent.scrollHeight;
+                mainContent.scrollTop = scrollHeight;
                 return;
             }
 
+            // GULIR PAKSA METODE GANDA: Mengantisipasi penundaan render CSS dan Font Browser
+            // 1. Eksekusi instan pertama
+            mainContent.scrollTop = mainContent.scrollHeight;
+
+            // 2. Eksekusi animasi halus kedua setelah frame berikutnya
             requestAnimationFrame(() => {
                 mainContent.scrollTo({
                     top: mainContent.scrollHeight,
                     behavior: 'smooth'
                 });
             });
+
+            // 3. Fallback pengaman ketiga setelah penjedaan singkat render marked.js selesai
+            setTimeout(() => {
+                mainContent.scrollTo({
+                    top: mainContent.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 80);
         }
 
         // --- Event Listener Scroll To Top ---
@@ -1851,7 +1856,6 @@
             });
         });
 
-        // Deteksi tinggi layout berubah pada mobile saat keyboard muncul
         window.addEventListener('resize', () => {
             if (document.activeElement.tagName === 'INPUT') {
                 scrollToBottom(true);
@@ -1878,6 +1882,8 @@
             saveAllChats();
 
             messageInput.value = '';
+            
+            // Gulir langsung saat pesan user dikirim
             scrollToBottom();
 
             // Elemen Indikator Mengetik AI
@@ -1902,6 +1908,8 @@
                 </div>
             `;
             chatContainer.appendChild(typingEl);
+            
+            // Scroll instan otomatis saat indikator loading AI muncul
             scrollToBottom();
 
             try {
@@ -2023,7 +2031,7 @@
                 currentChat.messages.push({ role: 'assistant', content: aiResponseText });
                 saveAllChats();
                 
-                // Pastikan dipicu lagi setelah rendering AI selesai 100%
+                // Memicu gulir paksa ganda setelah elemen AI sepenuhnya tertanam di halaman
                 scrollToBottom();
 
             } catch (error) {
