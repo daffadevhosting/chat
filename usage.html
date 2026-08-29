@@ -371,6 +371,117 @@
         margin-top: 1rem;
       }
     }
+    
+    /* Profile Styles */
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+    }
+    
+    .profile-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal h2 {
+      margin-bottom: 1.5rem;
+      color: var(--text-main);
+      font-size: 1.25rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+    
+    .github-btn {
+      background: #24292f;
+      border: 1px solid #36393e;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+    
+    .github-btn:hover {
+      background: #36393e;
+      border-color: #4a4d51;
+    }
+    
+    .github-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -381,7 +492,13 @@
         <div class="sub">Pemantauan Realtime • Batas harian global: <strong>10.000 neurons</strong></div>
       </div>
       <div class="flex-gap">
-       <select id="baseSelect" class="select-base" style="display:none;">
+        <div class="user-profile" id="userProfile" style="display: none; align-items: center; gap: 0.5rem;">
+          <img id="profileAvatar" src="" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);">
+          <span id="profileUsername" style="font-size: 0.85rem; color: var(--text-main);"></span>
+          <button id="logoutBtn" class="btn" style="margin-left: 0.5rem; font-size: 0.8rem;">Logout</button>
+        </div>
+        <button id="loginBtn" class="btn" style="display: none;">Login</button>
+        <select id="baseSelect" class="select-base" style="display:none;">
           <option value="https://daffa-ai.mvstream.workers.dev">Production API</option>
           <option value="mock">Simulasi (Mock)</option>
         </select>
@@ -769,6 +886,218 @@
           renderFeedback(f);
         });
     }
+
+    // ==================== AUTH & PROFILE FUNCTIONS ====================
+    const API_BASE = "https://daffa-ai.mvstream.workers.dev";
+    let currentUser = null;
+
+    // Check auth status on page load
+    async function checkAuth() {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const response = await fetch(`${API_BASE}/auth/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.user) {
+              currentUser = data.user;
+              showUserProfile(data.user);
+            } else {
+              localStorage.removeItem('authToken');
+              showLoginButton();
+            }
+          } else {
+            localStorage.removeItem('authToken');
+            showLoginButton();
+          }
+        } catch (e) {
+          console.error('Auth check failed:', e);
+          showLoginButton();
+        }
+      } else {
+        showLoginButton();
+      }
+    }
+
+    function showUserProfile(user) {
+      const profileDiv = document.getElementById('userProfile');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      if (profileDiv) {
+        profileDiv.style.display = 'flex';
+        if (user.githubAvatar) {
+          document.getElementById('profileAvatar').src = user.githubAvatar;
+        } else {
+          document.getElementById('profileAvatar').src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.username || user.email);
+        }
+        document.getElementById('profileUsername').textContent = user.username || user.email;
+      }
+      if (loginBtn) loginBtn.style.display = 'none';
+    }
+
+    function showLoginButton() {
+      const profileDiv = document.getElementById('userProfile');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      if (profileDiv) profileDiv.style.display = 'none';
+      if (loginBtn) loginBtn.style.display = 'block';
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!email || !password) {
+        alert('Email dan password harus diisi');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem('authToken', data.token);
+          currentUser = data.user;
+          showUserProfile(data.user);
+          closeModal('loginModal');
+          alert('Login berhasil!');
+        } else {
+          alert(data.error || 'Login gagal');
+        }
+      } catch (e) {
+        console.error('Login error:', e);
+        alert('Terjadi kesalahan saat login');
+      }
+    }
+
+    async function handleRegister() {
+      const username = document.getElementById('registerUsername').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      
+      if (!username || !email || !password) {
+        alert('Semua field harus diisi');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          alert('Registrasi berhasil! Silakan login.');
+          closeModal('registerModal');
+          showModal('loginModal');
+        } else {
+          alert(data.error || 'Registrasi gagal');
+        }
+      } catch (e) {
+        console.error('Register error:', e);
+        alert('Terjadi kesalahan saat registrasi');
+      }
+    }
+
+    async function handleLogout() {
+      const token = localStorage.getItem('authToken');
+      
+      try {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
+      
+      localStorage.removeItem('authToken');
+      currentUser = null;
+      showLoginButton();
+      alert('Logout berhasil');
+    }
+
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function connectGitHub() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Silakan login terlebih dahulu');
+        return;
+      }
+      
+      window.location.href = `${API_BASE}/auth/github`;
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      
+      // Login modal
+      const loginBtn = document.getElementById('loginBtn');
+      const cancelLogin = document.getElementById('cancelLogin');
+      const submitLogin = document.getElementById('submitLogin');
+      const showRegister = document.getElementById('showRegister');
+      
+      if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
+      if (cancelLogin) cancelLogin.addEventListener('click', () => closeModal('loginModal'));
+      if (submitLogin) submitLogin.addEventListener('click', handleLogin);
+      if (showRegister) showRegister.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('loginModal');
+        showModal('registerModal');
+      });
+      
+      // Register modal
+      const cancelRegister = document.getElementById('cancelRegister');
+      const submitRegister = document.getElementById('submitRegister');
+      const showLoginFromRegister = document.getElementById('showLoginFromRegister');
+      
+      if (cancelRegister) cancelRegister.addEventListener('click', () => closeModal('registerModal'));
+      if (submitRegister) submitRegister.addEventListener('click', handleRegister);
+      if (showLoginFromRegister) showLoginFromRegister.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('registerModal');
+        showModal('loginModal');
+      });
+      
+      // Logout
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+      
+      // GitHub connect
+      const connectGithubBtn = document.getElementById('connectGithubBtn');
+      const cancelGithub = document.getElementById('cancelGithub');
+      
+      if (connectGithubBtn) connectGithubBtn.addEventListener('click', connectGitHub);
+      if (cancelGithub) cancelGithub.addEventListener('click', () => closeModal('githubModal'));
+      
+      // Close modals on overlay click
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            overlay.classList.add('hidden');
+          }
+        });
+      });
+    });
   </script>
 </body>
 </html>

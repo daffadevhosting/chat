@@ -926,6 +926,110 @@
             transform: translateY(-1px);
         }
 
+        /* Profile Styles */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.75rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-pure);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-safir);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .github-btn {
+            background: #24292f;
+            border: 1px solid #36393e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition-smooth);
+        }
+
+        .github-btn:hover {
+            background: #36393e;
+            border-color: #4a4d51;
+        }
+
+        .github-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         /* --- Sistem Global Custom Alert & Feedback Modal --- */
         .custom-alert-overlay {
             position: fixed;
@@ -1060,6 +1164,12 @@
             <span></span>
         </div>
         <div class="logo" id="setting-status">Chat Mode</div>
+        <div class="user-profile" id="userProfile" style="display: none; align-items: center; gap: 0.5rem;">
+          <img id="profileAvatar" src="" alt="Profile" style="width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-subtle);">
+          <span id="profileUsername" style="font-size: 0.85rem; color: var(--text-primary); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+          <button id="logoutBtn" class="btn" style="margin-left: 0.5rem; font-size: 0.8rem; padding: 0.4rem 0.8rem;">Logout</button>
+        </div>
+        <button id="loginBtn" class="btn" style="display: none;">Login</button>
         <a href="./usage"><div class="avatar">AI</div></a>
     </header>
 
@@ -1169,6 +1279,73 @@
             <!-- Dynamic elements will be inserted here -->
         </div>
         <button class="new-chat-btn" id="newChatBtn">Mulai Chat Baru</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Masukkan email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="Masukkan password">
+            </div>
+            <div class="modal-actions">
+                <button id="cancelLogin" class="btn">Batal</button>
+                <button id="submitLogin" class="btn btn-primary">Login</button>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                Belum punya akun? <a href="#" id="showRegister" style="color: var(--accent-safir);">Daftar di sini</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2>Daftar Akun Baru</h2>
+            <div class="form-group">
+                <label for="registerUsername">Username</label>
+                <input type="text" id="registerUsername" placeholder="Masukkan username">
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="Masukkan email">
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" placeholder="Masukkan password">
+            </div>
+            <div class="modal-actions">
+                <button id="cancelRegister" class="btn">Batal</button>
+                <button id="submitRegister" class="btn btn-primary">Daftar</button>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                Sudah punya akun? <a href="#" id="showLoginFromRegister" style="color: var(--accent-safir);">Login di sini</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- GitHub Connect Modal -->
+    <div id="githubModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2>Koneksikan GitHub</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                Koneksikan akun GitHub Anda untuk dapat membuat, push, dan pull repository.
+            </p>
+            <button id="connectGithubBtn" class="github-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.311.465-2.381 1.235-3.221-.135-.305-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.911 1.23 3.221 0 4.61-2.805 5.623-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.01c0-6.627-5.373-12-12-12"/>
+                </svg>
+                Koneksikan GitHub
+            </button>
+            <div class="modal-actions" style="margin-top: 1rem;">
+                <button id="cancelGithub" class="btn">Batal</button>
+            </div>
+        </div>
     </div>
 
     <!-- Load required libraries -->
@@ -2044,6 +2221,218 @@
                 scrollToBottom();
             }
         }
+
+        // ==================== AUTH & PROFILE FUNCTIONS ====================
+        const API_BASE = "https://daffa-ai.mvstream.workers.dev";
+        let currentUser = null;
+
+        // Check auth status on page load
+        async function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const response = await fetch(`${API_BASE}/auth/profile`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.user) {
+                            currentUser = data.user;
+                            showUserProfile(data.user);
+                        } else {
+                            localStorage.removeItem('authToken');
+                            showLoginButton();
+                        }
+                    } else {
+                        localStorage.removeItem('authToken');
+                        showLoginButton();
+                    }
+                } catch (e) {
+                    console.error('Auth check failed:', e);
+                    showLoginButton();
+                }
+            } else {
+                showLoginButton();
+            }
+        }
+
+        function showUserProfile(user) {
+            const profileDiv = document.getElementById('userProfile');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (profileDiv) {
+                profileDiv.style.display = 'flex';
+                if (user.githubAvatar) {
+                    document.getElementById('profileAvatar').src = user.githubAvatar;
+                } else {
+                    document.getElementById('profileAvatar').src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.username || user.email);
+                }
+                document.getElementById('profileUsername').textContent = user.username || user.email;
+            }
+            if (loginBtn) loginBtn.style.display = 'none';
+        }
+
+        function showLoginButton() {
+            const profileDiv = document.getElementById('userProfile');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (profileDiv) profileDiv.style.display = 'none';
+            if (loginBtn) loginBtn.style.display = 'block';
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showGlobalAlert('Error', 'Email dan password harus diisi');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    currentUser = data.user;
+                    showUserProfile(data.user);
+                    closeModal('loginModal');
+                    showGlobalAlert('Berhasil', 'Login berhasil!');
+                } else {
+                    showGlobalAlert('Error', data.error || 'Login gagal');
+                }
+            } catch (e) {
+                console.error('Login error:', e);
+                showGlobalAlert('Error', 'Terjadi kesalahan saat login');
+            }
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!username || !email || !password) {
+                showGlobalAlert('Error', 'Semua field harus diisi');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showGlobalAlert('Berhasil', 'Registrasi berhasil! Silakan login.');
+                    closeModal('registerModal');
+                    showModal('loginModal');
+                } else {
+                    showGlobalAlert('Error', data.error || 'Registrasi gagal');
+                }
+            } catch (e) {
+                console.error('Register error:', e);
+                showGlobalAlert('Error', 'Terjadi kesalahan saat registrasi');
+            }
+        }
+
+        async function handleLogout() {
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) {
+                console.error('Logout error:', e);
+            }
+            
+            localStorage.removeItem('authToken');
+            currentUser = null;
+            showLoginButton();
+            showGlobalAlert('Berhasil', 'Logout berhasil');
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function connectGitHub() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showGlobalAlert('Error', 'Silakan login terlebih dahulu');
+                return;
+            }
+            
+            window.location.href = `${API_BASE}/auth/github`;
+        }
+
+        // Event Listeners for Auth
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            
+            // Login modal
+            const loginBtn = document.getElementById('loginBtn');
+            const cancelLogin = document.getElementById('cancelLogin');
+            const submitLogin = document.getElementById('submitLogin');
+            const showRegister = document.getElementById('showRegister');
+            
+            if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
+            if (cancelLogin) cancelLogin.addEventListener('click', () => closeModal('loginModal'));
+            if (submitLogin) submitLogin.addEventListener('click', handleLogin);
+            if (showRegister) showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal('loginModal');
+                showModal('registerModal');
+            });
+            
+            // Register modal
+            const cancelRegister = document.getElementById('cancelRegister');
+            const submitRegister = document.getElementById('submitRegister');
+            const showLoginFromRegister = document.getElementById('showLoginFromRegister');
+            
+            if (cancelRegister) cancelRegister.addEventListener('click', () => closeModal('registerModal'));
+            if (submitRegister) submitRegister.addEventListener('click', handleRegister);
+            if (showLoginFromRegister) showLoginFromRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal('registerModal');
+                showModal('loginModal');
+            });
+            
+            // Logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+            
+            // GitHub connect
+            const connectGithubBtn = document.getElementById('connectGithubBtn');
+            const cancelGithub = document.getElementById('cancelGithub');
+            
+            if (connectGithubBtn) connectGithubBtn.addEventListener('click', connectGitHub);
+            if (cancelGithub) cancelGithub.addEventListener('click', () => closeModal('githubModal'));
+            
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.add('hidden');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
